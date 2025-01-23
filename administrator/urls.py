@@ -1,0 +1,26 @@
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.administrator_dashboard, name="administrator_dashboard"),
+    path('items/', views.item_list, name='item_list'),
+    path('item-types/', views.item_type_list, name='item_type_list'),
+    path('item-types/<int:pk>/edit/', views.edit_item_type, name='edit_item_type'),
+    path('item-types/<int:pk>/delete/', views.delete_item_type, name='delete_item_type'),
+    path('item-admin/<int:id>/', views.item_detail, name='item_detail_admin'),
+    path('item/edit/<int:id>/', views.item_edit, name='item_edit'),
+    path('item/<int:id>/add-image/', views.add_item_image, name='add_item_image'),
+    path('item/<int:id>/edit-image/', views.edit_item_image, name='edit_item_image'),
+    path('item/<int:id>/delete-image/', views.delete_item_image, name='delete_item_image'),
+    path('export-items/', views.export_items_to_excel, name='export_items'),
+    path('item/archive/<int:item_id>/', views.archive_item, name='item_archive'),
+    path('export_items/', views.export_items_to_pdf, name='export_items_to_pdf'),
+    path('archived-items/', views.archived_items_view, name='archived_items'),
+    path('item/<int:item_id>/unarchive/', views.unarchive_item, name='unarchive_item'),
+    path('download-db-backup/', views.download_db_backup, name='download_db_backup'),
+    path('restore_database/', views.restore_database, name='restore_database'),
+    path('account-logout/', views.logout_view, name="logout_route"),
+    path('partnerships/', views.partnership_list, name='partnership_list'),
+    path('partnership/<int:partnership_id>/', views.partnership_detail, name='partnership_detail'),
+
+]

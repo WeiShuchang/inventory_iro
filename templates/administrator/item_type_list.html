@@ -1,0 +1,244 @@
+{% extends "administrator/base.html" %}
+
+{% block content %}
+<div class="page-wrapper">
+    <div class="page-header d-print-none mb-2">
+        <div class="container-xl">
+            <div class="row g-2 align-items-center">
+                <div class="col">
+                    <div class="page-pretitle">
+                        Overview
+                    </div>
+                    <h2 class="page-title">
+                        Item Types
+                    </h2>
+                </div>
+                <div class="col-auto ms-auto d-print-none">
+                    <div class="btn-list">
+                        <a href="#" class="btn btn-primary d-none d-sm-inline-block" data-bs-toggle="modal" data-bs-target="#modal-itemtype">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                <path d="M12 5l0 14" />
+                                <path d="M5 12l14 0" />
+                            </svg>
+                            Add New Item Type
+                        </a>
+                        <a href="#" class="btn btn-primary d-sm-none btn-icon" data-bs-toggle="modal" data-bs-target="#modal-itemtype" aria-label="Add new item type">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                <path d="M12 5l0 14" />
+                                <path d="M5 12l14 0" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-body container-fluid">
+        {% if request.session.error %}
+        <div class="alert alert-danger" id="alert-message">
+            {{ request.session.error }}
+        </div>
+        {% endif %}
+        {% if request.session.success %}
+        <div class="alert alert-success" role="alert" id="alert-message">
+            {{ request.session.success }}
+        </div>
+        {% endif %}
+        {% if messages %}
+        <div id="alert-message">
+            {% for message in messages %}
+            <div class="alert {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'success' %}alert-success{% endif %}" role="alert">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="col-12">
+            <div class="card">
+                
+
+                <div class="table-responsive">
+                    <table class="table card-table table-vcenter text-nowrap datatable">
+                        <thead>
+                            <tr>
+                             
+                                <th>Item Type</th>
+                                <th>Edit</th>
+                                <th>Delete</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item_type in itemtypes %}
+                            <tr>
+                       
+                                <td>{{ item_type.name }}</td>
+                                <td>
+                                    <div class="btn-group">
+                                        <!-- Trigger modal for Edit -->
+                                        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" 
+                                                data-bs-target="#modal-edit" 
+                                                data-id="{{ item_type.id }}" 
+                                                data-name="{{ item_type.name }}">
+                                            Edit
+                                        </button>
+                                    </div>
+                                </td>
+                                <td>
+                                    <!-- Trigger delete modal -->
+                                    <button class="btn btn-sm btn-danger" data-bs-toggle="modal" 
+                                            data-bs-target="#modal-delete" 
+                                            data-id="{{ item_type.id }}" 
+                                            data-name="{{ item_type.name }}">
+                                        Delete
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="modal-delete" tabindex="-1" aria-labelledby="modal-delete-label" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modal-delete-label">Confirm Deletion</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this item type?</p>
+                    <p><strong>Item Type Name:</strong> <span id="delete-item-name"></span></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <form id="delete-form" action="" method="POST">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for adding new item type -->
+    <div class="modal modal-blur fade" id="modal-itemtype" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Item Type</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="" method="POST"  enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Item Type Name</label>
+                            <input type="text" class="form-control" name="name" placeholder="Enter item type name" value="{{ request.POST.name }}" required>
+                            {% if form.name.errors %}
+                                <div class="text-danger">{{ form.name.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <a href="#" class="btn btn-link link-secondary" data-bs-dismiss="modal">
+                            Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary ms-auto">
+                            Add New Item Type
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div class="modal modal-blur fade" id="modal-edit" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Item Type</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="edit-form"  method="POST">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Item Type Name</label>
+                            <input type="text" class="form-control" name="name" id="edit-name" placeholder="Enter item type name">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <a href="#" class="btn btn-link link-secondary" data-bs-dismiss="modal">
+                            Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary ms-auto">
+                            Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    .table th {
+        font-weight: bold;
+    }
+    
+    .table td, .table th {
+        font-size: 0.80rem;
+        padding: 0.5rem;
+    }
+    
+    .page-header {
+        margin-bottom: 0.5rem;
+    }
+    
+    .card-body {
+        padding-top: 1rem;
+    }
+    </style>
+<script>
+    (function () {
+        document.addEventListener('DOMContentLoaded', function () {
+            // Modal for Edit
+            const modalEdit = document.getElementById('modal-edit');
+            modalEdit.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget;
+                const id = button.getAttribute('data-id');
+                const name = button.getAttribute('data-name');
+        
+                // Populate modal fields for Edit
+                const form = document.getElementById('edit-form');
+                const basePath = window.location.pathname.split('/')[1]; // Get the base path (e.g., 'administrator')
+                form.action = `/${basePath}/item-types/${id}/edit/`; // Dynamically append to the base path
+                const nameInput = document.getElementById('edit-name');
+                nameInput.value = name;
+            });
+            
+            // Modal for Delete
+            const modalDelete = document.getElementById('modal-delete');
+            modalDelete.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget;
+                const id = button.getAttribute('data-id');
+                const name = button.getAttribute('data-name');
+                const deleteForm = document.getElementById('delete-form');
+        
+                // Populate modal fields for Delete
+                document.getElementById('delete-item-name').textContent = name;
+                deleteForm.action = `/administrator/item-types/${id}/delete/`; // Dynamically append to the base path
+            });
+        });
+    })();
+</script>
+
+{% endblock %}

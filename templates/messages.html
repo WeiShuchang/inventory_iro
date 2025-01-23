@@ -1,0 +1,20 @@
+{% if request.session.error %}
+<div class="alert alert-danger" id="alert-message">
+    {{ request.session.error }}
+</div>
+{% endif %}
+{% if request.session.success %}
+<div class="alert alert-success" role="alert" id="alert-message">
+    {{ request.session.success }}
+</div>
+{% endif %}
+{% if messages %}
+    <div id="alert-message">
+        {% for message in messages %}
+            <div class="alert {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'success' %}alert-success{% endif %}" role="alert">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+

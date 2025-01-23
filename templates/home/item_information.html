@@ -1,0 +1,142 @@
+{% extends "home/base.html" %}
+{% load static %}
+{% load humanize %}
+{% block content %}
+<style>
+    .breadcrumb-item::after {
+        content: " ➔ ";
+        padding: 0 5px;
+    }
+    .breadcrumb-item:last-child::after {
+        content: "";
+    }
+    .carousel-inner img {
+        object-fit: cover;
+        height: 300px; /* Adjusted for smaller image height */
+    }
+    .carousel {
+        max-width: 100%; /* Ensure it fits inside the column */
+    }
+    .item-details-container {
+        display: flex;
+        gap: 1.5rem;
+        align-items: flex-start;
+    }
+    .image-column {
+        flex: 0 0 40%; /* Assign 40% width to the image section */
+    }
+    .details-column {
+        flex: 0 0 60%; /* Assign 60% width to the table section */
+    }
+    .table {
+        font-size: 0.9rem; /* Reduced font size for a more compact look */
+    }
+    .table th, .table td {
+        padding: 0.6rem; /* Smaller padding for table cells */
+    }
+</style>
+
+<div class="container-xxl py-5">
+    <div class="container">
+        <!-- Breadcrumb navigation -->
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'item_types_list' %}">Item Types</a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'item_type_detail' item.item_type.pk %}">{{ item.item_type.name }}</a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    {{ item.property_number }}
+                </li>
+            </ol>
+        </nav>
+
+        <!-- Item details -->
+        <div class="item-details-container">
+            <div class="image-column">
+                <div id="itemImagesCarousel" class="carousel slide" data-bs-ride="carousel">
+                   
+                    <div class="carousel-inner">
+                        {% if images %}
+                            {% for image in images %}
+                            <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                <img class="d-block w-100 img-fluid" src="{{ image.image.url }}" alt="{{ image.caption }}">
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="carousel-item active">
+                                <img class="d-block w-100 img-fluid" src="{% static 'iro_logo.png' %}" alt="Default Image">
+                            </div>
+                        {% endif %}
+                    </div>
+                    <h1 class="mb-4">{{ item.property_number }}</h1>
+                    <a class="carousel-control-prev" href="#itemImagesCarousel" role="button" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </a>
+                    <a class="carousel-control-next" href="#itemImagesCarousel" role="button" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="details-column">
+           
+                <div class="table-responsive">
+                    <table class="table table-bordered table-sm">
+                        <tbody>
+                            <tr>
+                                <th>Sector/Division</th>
+                                <td>{{ item.sector_office_division_college }}</td>
+                            </tr>
+                            <tr>
+                                <th>Operating Unit</th>
+                                <td>{{ item.operating_unit_project }}</td>
+                            </tr>
+                            <tr>
+                                <th>Description</th>
+                                <td>{{ item.description }}</td>
+                            </tr>
+                            <tr>
+                                <th>Quantity</th>
+                                <td>{{ item.quantity }} {{ item.unit }}</td>
+                            </tr>
+                            <tr>
+                                <th>Responsible Person</th>
+                                <td>{{ item.responsible_person }}</td>
+                            </tr>
+                            <tr>
+                                <th>Date Acquired</th>
+                                <td>{{ item.date_acquired }}</td>
+                            </tr>
+                            <tr>
+                                <th>Fund</th>
+                                <td>{{ item.fund }}</td>
+                            </tr>
+                            <tr>
+                                <th>PPE Class</th>
+                                <td>{{ item.ppe_class }}</td>
+                            </tr>
+                            <tr>
+                                <th>Estimated Useful Life</th>
+                                <td>{{ item.estimated_useful_life }} years</td>
+                            </tr>
+                            <tr>
+                                <th>Unit Price</th>
+                                <td>₱{{ item.unit_price|floatformat:2|intcomma  }}</td>
+                            </tr>
+                            <tr>
+                                <th>Total Amount</th>
+                                <td>₱{{ item.total_amount|floatformat:2|intcomma  }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

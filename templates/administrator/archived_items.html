@@ -1,0 +1,113 @@
+{% extends "administrator/base.html" %}
+{% load humanize %}
+{% block content%}
+
+<div class="page-wrapper container">
+    <div class="page-header d-print-none">
+        <div class="container-xl">
+            <div class="row g-2 align-items-center">
+                <div class="col">
+                    <div class="page-pretitle">
+                        Overview
+                    </div>
+                    <h2 class="page-title">
+                        Archived Items
+                    </h2>
+                   
+                </div>
+                <div class="col-auto ms-auto d-print-none ">
+                
+                    <div class="btn-list">
+                      
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+ 
+
+
+<div class="card mt-3">
+    <div class="card-body">
+        <div id="table-default" class="table-responsive">
+            <table class="table table-sm datatable card-table table-bordered table-hover">
+                <thead style="color: black; font-weight:bold;">
+                    <tr>
+                        <th>Sector/Office/ <br>Division/College</th>
+                        <th>Operating Unit <br>/ Project</th>
+                        <th>Property Number</th>
+                        <th>Responsible <br>Person</th>
+                        <th>Qty</th>
+                        <th>Unit</th>
+                        <th>Type</th>
+                        <th>Item Description</th>
+                        <th>Date Acquired</th>
+                        <th>Fund</th>
+                        <th>PPE Class</th>
+                        <th>Est.Useful Life</th>
+                        <th>Unit Price</th>
+                        <th>Total Amount</th>
+                    </tr>
+                </thead>
+                <tbody class="table-tbody">
+                    {% for item in items %}
+                        <tr onclick="window.location.href='{% url 'item_detail_admin' item.id %}'" style="cursor: pointer;">
+                            <td>{{ item.sector_office_division_college }}</td>
+                            <td>{{ item.operating_unit_project }}</td>
+                            <td>{{ item.property_number }}</td>
+                            <td>{{ item.responsible_person }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>{{ item.unit }}</td>
+                            <td>{{ item.item_type }}</td>
+                            <td>{{ item.description }}</td>
+                            <td>{{ item.date_acquired|date:"F d, Y" }}</td>
+                            <td>{{ item.fund }}</td>
+                            <td>{{ item.ppe_class }}</td>
+                            <td>{{ item.estimated_useful_life }} years</td>
+                            <td>₱{{ item.unit_price|floatformat:2|intcomma }}</td>
+                            <td>₱{{ item.total_amount|floatformat:2|intcomma }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            {% if items.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1" aria-label="First">&laquo;&laquo; First</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ items.previous_page_number }}" aria-label="Previous">&laquo; Previous</a>
+                </li>
+            {% endif %}
+
+            <li class="page-item disabled">
+                <span class="page-link">Page {{ items.number }} of {{ items.paginator.num_pages }}</span>
+            </li>
+
+            {% if items.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ items.next_page_number }}" aria-label="Next">Next &raquo;</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ items.paginator.num_pages }}" aria-label="Last">Last &raquo;&raquo;</a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+</div>
+
+
+</div>
+{% endblock content%}
+
+
+
+
+
+

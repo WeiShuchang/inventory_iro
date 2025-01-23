@@ -1,0 +1,111 @@
+{% extends "home/base.html" %}
+{% load static %}
+{% block content %}
+
+<!-- Carousel Start -->
+<div class="container-fluid p-0 ">
+    <div class="owl-carousel header-carousel position-relative">
+        <div class="owl-carousel-item position-relative">
+            <img class="img-fluid" src="{% static 'home/img/iro_landing.png' %}" alt="" style="height:600px; object-fit: cover;">
+            <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center" style="background: rgba(24, 29, 56, .7);">
+                <div class="container">
+                    <div class="row justify-content-start">
+                        <div class="col-sm-10 col-lg-8">
+                            <h5 class="text-primary text-uppercase mb-3 animated slideInDown">Inventory System</h5>
+                            <h1 class="display-3 text-white animated slideInDown">BSU - International Relations Office</h1>
+                            {% comment %} <p class="fs-5 text-white mb-4 pb-2">Vero elitr justo clita lorem. Ipsum dolor at sed stet sit diam no. Kasd rebum ipsum et diam justo clita et kasd rebum sea sanctus eirmod elitr.</p> {% endcomment %}
+                            <a href="{% url "item_types_list" %}" class="btn btn-primary py-md-3 px-md-5 me-3 animated slideInLeft">Show Inventory</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="owl-carousel-item position-relative">
+            <img class="img-fluid" src="{% static 'home/img/iro_landing.png' %}" alt="" style="height: 600px; object-fit: cover;">
+            <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center" style="background: rgba(24, 29, 56, .7);">
+                <div class="container">
+                    <div class="row justify-content-start">
+                        <div class="col-sm-10 col-lg-8">
+                            <h5 class="text-primary text-uppercase mb-3 animated slideInDown">Inventory System</h5>
+                            <h1 class="display-3 text-white animated slideInDown">BSU - International Relations Office</h1>
+                         
+                            <a href="{% url "item_types_list" %}" class="btn btn-primary py-md-3 px-md-5 me-3 animated slideInLeft">Show Inventory</a>
+                            {% comment %} <a href="" class="btn btn-light py-md-3 px-md-5 animated slideInRight">Join Now</a> {% endcomment %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Carousel End -->
+
+
+    <!-- Se<!-- Service Start -->
+<div class="container-xxl py-5">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-4 col-sm-6 wow fadeInUp" data-wow-delay="0.1s">
+                <div class="service-item text-center pt-3 d-flex flex-column h-100">
+                    <a href="https://bsu.international/international-relations-office/" class="text-decoration-none d-flex flex-column h-100" target="_blank">
+                        <div class="p-4 flex-grow-1">
+                            <i class="fa fa-3x fa-graduation-cap text-primary mb-4"></i>
+                            <h5 class="mb-3">About IRO</h5>
+                            <p>IRO’s Vision, mission, goals, and the BSU Internationalization Roadmap.</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-4 col-sm-6 wow fadeInUp" data-wow-delay="0.3s">
+                <div class="service-item text-center pt-3 d-flex flex-column h-100">
+                    <a href="https://bsu.international/call-for-application/" class="text-decoration-none d-flex flex-column h-100" target="_blank">
+                        <div class="p-4 flex-grow-1">
+                            <i class="fa fa-3x fa-phone text-primary mb-4"></i>
+                            <h5 class="mb-3">Call for Application</h5>
+                            <p>Get to know the latest updates on international scholarships.</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-4 col-sm-6 wow fadeInUp" data-wow-delay="0.5s">
+                <div class="service-item text-center pt-3 d-flex flex-column h-100">
+                    <a href="https://bsu.international/sustainable-development-goals/sdg-17/" class="text-decoration-none d-flex flex-column h-100" target="_blank">
+                        <div class="p-4 flex-grow-1">
+                            <i class="fa fa-3x fa-globe text-primary mb-4"></i>
+                            <h5 class="mb-3">Partnerships for the Sustainable Development Goals</h5>
+                            <p>Strengthen the means of implementation and revitalize the global partnership for sustainable development.</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Service End -->
+
+
+    <!-- About Start -->
+    <div class="container-xxl py-5">
+        <div class="container">
+            <div class="row g-5">
+                <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.1s" style="min-height: 400px;">
+                    <div class="position-relative h-100">
+                        <img class="img-fluid position-absolute w-100 h-100" src="{% static "home/img/iro_landing.png" %}" alt="" style="object-fit: cover;">
+                    </div>
+                </div>
+                <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.3s">
+                    <h6 class="section-title bg-white text-start text-primary pe-3">Benguet State University</h6>
+                    <h1 class="mb-4">International Relations Office</h1>
+                    <p class="mb-4">The Lead Ofﬁce in Facilitating and Coordinating International Partnerships for the University</p>
+
+                    
+                    <a class="btn btn-primary py-3 px-5 mt-2" href="https://bsu.international/" target="_blank">Read More</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- About End -->
+
+{% endblock content %}
+
+

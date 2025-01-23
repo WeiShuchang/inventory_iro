@@ -1,0 +1,30 @@
+{% extends "administrator/base.html" %}
+{% load static %}
+
+{% block content %}
+
+<div class="container d-flex justify-content-center align-items-center mt-2" style="min-height: 80vh;">
+    <div class="rounded bg-light shadow-sm p-4" style="max-width: 400px; width: 100%; background-color: #f8f9fa;">
+        <h2 class="text-dark text-center">Restore Database</h2>
+        <p class="text-danger text-center">* Warning: Restoring the database will replace the current data. Make sure you have a backup.</p>
+
+        <!-- Feedback Messages -->
+        {% if messages %}
+            <div class="alert alert-info">
+                {% for message in messages %}
+                    {{ message }}
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Upload Form -->
+        <form method="POST" enctype="multipart/form-data" class="form-group">
+            {% csrf_token %}
+            <label for="db_file" class="form-label text-dark">Choose Database File (.sqlite3)</label>
+            <input type="file" name="db_file" id="db_file" class="form-control mb-3" accept=".sqlite3" required>
+            <button type="submit" class="btn btn-dark w-100">Restore Database</button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

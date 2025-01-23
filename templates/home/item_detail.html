@@ -1,0 +1,71 @@
+{% extends "home/base.html" %}
+{% load static %}
+{% block content %}
+<style>
+    .card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+  
+    .card:hover {
+        transform: scale(1.05);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+  
+    .card img {
+        transition: transform 0.3s ease;
+    }
+  
+    .card:hover img {
+        transform: scale(1.1);
+    }
+  
+  
+    .breadcrumb-item::after {
+        content: " ➔ ";
+        padding: 0 5px;
+    }
+  
+    .breadcrumb-item:last-child::after {
+        content: "";
+    }
+</style>
+
+<div class="container-xxl py-5">
+    <div class="container">
+        <!-- Breadcrumb Navigation -->
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'item_types_list' %}">Item Types</a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">{{ item_type.name }}</li>
+            </ol>
+        </nav>
+
+        <div class="text-center">
+            <h1 class="mb-5">{{ item_type.name }}</h1>
+        </div>
+        <div class="row g-4">
+            {% for item_data in items_with_images %}
+            <div class="col-lg-2 col-md-4 col-sm-6">
+                <div class="card h-100 text-center">
+                    <a href="{% url 'item_detail' item_data.item.id %}" class="stretched-link">
+                        <div style="height: 200px; overflow: hidden;">
+                            {% if item_data.image_url %}
+                            <img src="{{ item_data.image_url }}" class="card-img-top" alt="{{ item_data.item.description }}" style="width: 100%; height: 100%; object-fit: cover;">
+                            {% else %}
+                            <img src="{% static 'iro_logo.png' %}" class="card-img-top" alt="Default Image" style="width: 100%; height: 100%; object-fit: cover;">
+                            {% endif %}
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">{{ item_data.item.property_number }}</h5>
+                            <p class="card-text">{{ item_data.item.description|truncatewords:10 }}</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock content %}

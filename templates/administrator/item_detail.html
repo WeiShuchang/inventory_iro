@@ -1,0 +1,410 @@
+{% extends "administrator/base.html" %}
+{% load static %}
+{% block content %}
+<div class="page-wrapper">
+    <div class="page-header d-print-none">
+        <div class="container-xl">
+            <div class="row g-2 align-items-center">
+                <div class="col d-flex align-items-center">
+                    <a href="javascript:history.back()" class="btn btn-outline" aria-label="Go Back">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left-short" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M12 8a.5.5 0 0 1-.5.5H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5a.5.5 0 0 1 .5.5"/>
+                        </svg>
+                    </a>
+                    <h2 class="page-title mb-0 ms-2">
+                        {{ item.item_type.name }} - {{ item.property_number }}
+                    </h2>
+                </div>
+                
+                <div class="col-auto ms-auto d-print-none">
+                    <div class="btn-list">
+                        
+                         
+                          
+                        
+                        <a href="#" class="btn btn-primary d-sm-none btn-icon" data-bs-toggle="modal" data-bs-target="#modal-report" aria-label="Create new report">
+                            <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                <path d="M12 5l0 14" />
+                                <path d="M5 12l14 0" />
+                            </svg>
+                        </a>
+                      
+                    </div>
+                   
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    
+    
+    <div class="page-body container-fluid">
+        {% include "messages.html" %}
+        <div class="row">
+            <div class="col-md-3 row">
+                <div class="col-md-12" style="margin-top: 0; padding-top: 0;">
+                    <div class="card">
+                        {% comment %} <div class="card-header">
+                            <h3 class="card-title">{{ item.item_type.name }} - {{ item.property_number }}</h3>
+                        </div> {% endcomment %}
+                        <div class="card-body">
+                            <div id="carousel-indicators-thumb" class="carousel slide carousel-fade" data-bs-ride="carousel">
+                                {% if item.images.all %}
+                                <div class="carousel-indicators carousel-indicators-thumb">
+                                    {% for img in item.images.all %}
+                                    <button type="button" data-bs-target="#carousel-indicators-thumb" data-bs-slide-to="{{ forloop.counter0 }}" class="ratio ratio-4x3 {% if forloop.first %}active{% endif %}" style="background-image: url('{{ img.image.url }}')"></button>
+                                    {% endfor %}
+                                </div>
+                                <div class="carousel-inner">
+                                    {% for img in item.images.all %}
+                                    <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                        <img class="d-block w-100 img-fluid carousel-image" alt="Item Image" src="{{ img.image.url }}">
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                {% else %}
+                                <div class="carousel-indicators carousel-indicators-thumb">
+                                    <button type="button" data-bs-target="#carousel-indicators-thumb" data-bs-slide-to="0" class="ratio ratio-4x3 active" style="background-image: url('{% static "iro_logo.png" %}')"></button>
+                                </div>
+                                <div class="carousel-inner">
+                                    <div class="carousel-item active">
+                                        <img class="d-block w-100 img-fluid carousel-image" alt="Default Image" src="{% static 'iro_logo.png' %}">
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+            
+                    <!-- Edit Image Button (disabled if no images) -->
+                    <div class="d-flex justify-content-center">
+                        <!-- Edit Image Button -->
+                        <button type="button" class="btn btn-sm btn-warning mt-3" data-bs-toggle="modal" data-bs-target="#editImageModal" {% if not item.images.all %}disabled{% endif %}>
+                            Edit Image
+                        </button>
+                    
+                        
+                        <!-- Delete Image Button -->
+                        <button type="button" class="btn btn-sm btn-danger mt-3 mx-2" data-bs-toggle="modal" data-bs-target="#deleteImageModal" {% if not item.images.all %}disabled{% endif %}>
+                            Delete Image
+                        </button>
+
+                        <!-- Add Images Button -->
+                        <button type="button" class="btn btn-sm btn-primary mt-3 " data-bs-toggle="modal" data-bs-target="#uploadImageModal">
+                            Add Images
+                        </button>
+                    
+                    </div>
+                    
+                    
+                </div>
+            </div>
+            <!-- Sample Data Section on Right -->
+            <div class="col-md-9">
+                <div class="card">
+                    <div class="card-body">
+                        
+                        <form method="POST" action="{% url 'item_edit' item.id %}">
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="form-group row mb-2">
+                                    <label for="sector_office_division_college" class="col-sm-4 col-form-label">Sector/Office/Division/College:</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control" id="sector_office_division_college" name="sector_office_division_college" value="{{ item.sector_office_division_college }}">
+                                    </div>
+                                </div>
+                
+                                <div class="form-group row mb-2">
+                                    <label for="operating_unit_project" class="col-sm-4 col-form-label">Operating Unit/Project:</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control" id="operating_unit_project" name="operating_unit_project" value="{{ item.operating_unit_project }}">
+                                    </div>
+                                </div>
+                            </div>
+                       
+            
+                            <div class="form-group row mb-2">
+                                <label for="property_number" class="col-sm-2 col-form-label">Property Number:</label>
+                                <div class="col-sm-4">
+                                    <input type="text" class="form-control" id="property_number" name="property_number" value="{{ item.property_number }}">
+                                </div>
+                           
+                                <label for="responsible_person" class="col-sm-2 col-form-label">Responsible Person:</label>
+                                <div class="col-sm-4">
+                                    <input type="text" class="form-control" id="responsible_person" name="responsible_person" value="{{ item.responsible_person }}">
+                                </div>
+                            </div>
+            
+                            <div class="form-group row mb-2">
+                                <label for="quantity" class="col-sm-1 col-form-label">Quantity:</label>
+                                <div class="col-sm-3">
+                                    <input type="number" class="form-control" id="quantity" name="quantity" value="{{ item.quantity }}">
+                                </div>
+                           
+                                <label for="unit" class="col-sm-1 col-form-label">Unit:</label>
+                                <div class="col-sm-3">
+                                    <input type="text" class="form-control" id="unit" name="unit" value="{{ item.unit }}">
+                                </div>
+
+                                <label for="item_type" class="col-sm-1 col-form-label">Type:</label>
+                                <div class="col-sm-3">
+                                    <select class="form-control" id="item_type" name="item_type">
+                                        {% for type in item_types %}
+                                            <option value="{{ type.id }}" {% if item.item_type.id == type.id %}selected{% endif %}>{{ type.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+            
+                            <div class="form-group row mb-2">
+                                <label for="description" class="col-form-label">Description:</label>
+                                <div class="">
+                                    <textarea class="form-control" id="description" name="description" style="height: 130px;">{{ item.description }}</textarea>
+                                </div>
+                            </div>
+                            
+            
+                            <div class="form-group row mb-2">
+                                <label for="date_acquired" class="col-sm-2 col-form-label">Date Acquired:</label>
+                                <div class="col-sm-5">
+                                    <input type="date" class="form-control" id="date_acquired" name="date_acquired" value="{{ item.date_acquired|date:'Y-m-d' }}">
+                                </div>
+                      
+                                <label for="fund" class="col-sm-1 col-form-label">Fund:</label>
+                                <div class="col-sm-4">
+                                    <input type="text" class="form-control" id="fund" name="fund" value="{{ item.fund }}">
+                                </div>
+                            </div>
+            
+                            <div class="form-group row mb-2">
+                                <label for="ppe_class" class="col-sm-2 col-form-label">PPE Class:</label>
+                                <div class="col-sm-4">
+                                    <input type="text" class="form-control" id="ppe_class" name="ppe_class" value="{{ item.ppe_class }}">
+                                </div>
+                            
+                                <label for="estimated_useful_life" class="col-sm-3 col-form-label">Estimated Useful Life:</label>
+                                <div class="col-sm-3">
+                                    <input type="number" class="form-control" id="estimated_useful_life" name="estimated_useful_life" value="{{ item.estimated_useful_life }}">
+                                </div>
+                            </div>
+            
+                            <div class="form-group row mb-2">
+                                <label for="unit_price" class="col-sm-2 col-form-label">Unit Price:</label>
+                                <div class="col-sm-4">
+                                    <input type="number" class="form-control" id="unit_price" name="unit_price" value="{{ item.unit_price }}" step="0.01">
+                                </div>
+                            
+                                <label for="total_amount" class="col-sm-2 col-form-label">Total Amount:</label>
+                                <div class="col-sm-4">
+                                    <input type="number" class="form-control" id="total_amount" name="total_amount" value="{{ item.total_amount }}" step="0.01">
+                                </div>
+                            </div>
+                            <div class="rm-group row mb-2">
+                                <label class=" col-form-label">Remarks</label>
+                                <div class="">
+                                    <textarea class="form-control" name="remarks" placeholder="Enter remarks" rows="4">{{ request.POST.remarks|default:item.remarks }}</textarea>
+                                </div>
+                            </div>
+                            
+            
+                            <div class="form-group row mb-2">
+                                <div class="col-sm-12 d-flex gap-2">
+                                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                                    
+                                    {% if item.is_archived %}
+                                        <!-- Button to Unarchive -->
+                                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#unarchiveModal">
+                                            Unarchive Item
+                                        </button>
+                                    {% else %}
+                                        <!-- Button to Archive -->
+                                        <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#archiveModal">
+                                            Archive Item
+                                        </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+       <!-- Unarchive Modal -->
+            <div class="modal fade" id="unarchiveModal" tabindex="-1" aria-labelledby="unarchiveModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="unarchiveModalLabel">Unarchive Item</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            Are you sure you want to restore this item?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <!-- Button to Confirm Unarchive -->
+                            <a href="{% url 'unarchive_item' item.id %}" class="btn btn-success" id="unarchiveConfirmButton">
+                                Restore
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                    
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Editing Image -->
+<div class="modal fade" id="editImageModal" tabindex="-1" aria-labelledby="editImageModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editImageModalLabel">Edit Image</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="{% url 'edit_item_image' item.id %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="image_id" class="form-label">Select Image</label>
+                        <select name="image_id" id="image_id" class="form-select" onchange="updatePreview(this)">
+                            {% for img in item.images.all %}
+                                <option value="{{ img.id }}" data-image-url="{{ img.image.url }}">{{ img.image.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="new_image" class="form-label">New Image</label>
+                        <input type="file" name="new_image" id="new_image" class="form-control" required>
+                    </div>
+                    <div class="mb-3 d-flex flex-column align-items-center">
+                        <label class="text-center">Current Selected Image</label>
+                        <img id="selectedImagePreview" src="{% firstof item.images.all.0.image.url static 'iro_logo.png' %}" alt="Selected Image" class="img-fluid" style="max-height: 150px; object-fit: contain;">
+                        <button type="submit" class="btn btn-primary mt-3">Save Changes</button>
+                    </div>
+                    
+               
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="uploadImageModal" tabindex="-1" aria-labelledby="uploadImageModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="uploadImageModalLabel">Add Images</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="{% url 'add_item_image' item.id %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="images" class="form-label">Choose Images</label>
+                        <input type="file" name="images" id="images" multiple class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Upload Images</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div><!-- Modal for Deleting Image -->
+
+<div class="modal fade" id="deleteImageModal" tabindex="-1" aria-labelledby="deleteImageModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteImageModalLabel">Delete Image</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="{% url 'delete_item_image' item.id %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="image_id" class="form-label">Select Image to Delete</label>
+                        <select name="image_id" id="image_id" class="form-select" onchange="updateDeletePreview(this)">
+                            {% for img in item.images.all %}
+                                <option value="{{ img.id }}" data-image-url="{{ img.image.url }}">{{ img.image.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3 text-center">
+                        <!-- Image preview -->
+                        <img id="selectedImagePreviewDelete" src="{% firstof item.images.all.0.image.url static 'iro_logo.png' %}" alt="Image Preview" class="img-fluid" style="max-height: 150px; object-fit: contain;">
+                    </div>
+                    <div class="mb-3 text-center">
+                        <p>Are you sure you want to delete this image?</p>
+                        <button type="submit" class="btn btn-danger">Delete Image</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Archive Confirmation Modal -->
+<div class="modal fade" id="archiveModal" tabindex="-1" aria-labelledby="archiveModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="archiveModalLabel">Archive Item</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to archive this item?
+            </div>
+            <div class="modal-footer">
+                <form method="POST" action="{% url 'item_archive' item.id %}">
+                    {% csrf_token %}
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Yes, Archive</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<script>
+    // Existing function for editing image preview (if needed elsewhere)
+    function updatePreview(selectElement) {
+        const selectedOption = selectElement.options[selectElement.selectedIndex];
+        const imageUrl = selectedOption.getAttribute('data-image-url');
+        const previewImage = document.getElementById('selectedImagePreview');
+        previewImage.src = imageUrl;
+    }
+    function updateDeletePreview(selectElement) {
+        const selectedOption = selectElement.options[selectElement.selectedIndex];
+        const imageUrl = selectedOption.getAttribute('data-image-url');
+        const previewImage = document.getElementById('selectedImagePreviewDelete');
+        previewImage.src = imageUrl;  // Update the image preview source
+    }
+</script>
+
+
+
+<style>
+    .carousel-inner {
+        position: relative;
+        width: 100%;
+        height: 250px; /* Fixed height for uniformity */
+    }
+
+    .carousel-image {
+        width: 100%;
+        height: 100%; /* Ensure image fills the container */
+        object-fit: cover; /* Ensure the image covers the entire space */
+    }
+</style>
+
+{% endblock content %}
