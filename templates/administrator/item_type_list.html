@@ -56,17 +56,15 @@
             {% endfor %}
         </div>
         {% endif %}
-
+    
         <div class="col-12">
             <div class="card">
-                
-
                 <div class="table-responsive">
                     <table class="table card-table table-vcenter text-nowrap datatable">
                         <thead>
                             <tr>
-                             
                                 <th>Item Type</th>
+                                <th>Image</th>  <!-- Added Image Column -->
                                 <th>Edit</th>
                                 <th>Delete</th>
                             </tr>
@@ -74,17 +72,25 @@
                         <tbody>
                             {% for item_type in itemtypes %}
                             <tr>
-                       
                                 <td>{{ item_type.name }}</td>
+                                <td>
+                                    {% if item_type.image %}
+                                        <img src="{{ item_type.image.url }}" alt="{{ item_type.name }}" class="img-thumbnail" style="max-width: 100px;">
+                                    {% else %}
+                                        <span>No Image</span>
+                                    {% endif %}
+                                </td>
                                 <td>
                                     <div class="btn-group">
                                         <!-- Trigger modal for Edit -->
                                         <button class="btn btn-sm btn-primary" data-bs-toggle="modal" 
                                                 data-bs-target="#modal-edit" 
                                                 data-id="{{ item_type.id }}" 
-                                                data-name="{{ item_type.name }}">
+                                                data-name="{{ item_type.name }}"
+                                                {% if item_type.image %} data-image="{{ item_type.image.url }}" {% else %} data-image="" {% endif %}>
                                             Edit
                                         </button>
+
                                     </div>
                                 </td>
                                 <td>
@@ -104,7 +110,7 @@
             </div>
         </div>
     </div>
-
+    
     <!-- Delete Confirmation Modal -->
     <div class="modal fade" id="modal-delete" tabindex="-1" aria-labelledby="modal-delete-label" aria-hidden="true">
         <div class="modal-dialog">
@@ -145,8 +151,17 @@
                             {% if form.name.errors %}
                                 <div class="text-danger">{{ form.name.errors }}</div>
                             {% endif %}
+                            <div class="mb-3 pt-2">
+                                <label class="form-label">Item Type Image</label>
+                                <input type="file" class="form-control" name="image">
+                                {% if form.image.errors %}
+                                    <div class="text-danger">{{ form.image.errors }}</div>
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
+                    
+                    
                     <div class="modal-footer">
                         <a href="#" class="btn btn-link link-secondary" data-bs-dismiss="modal">
                             Cancel
@@ -168,12 +183,16 @@
                     <h5 class="modal-title">Edit Item Type</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form id="edit-form"  method="POST">
+                <form id="edit-form" method="POST" enctype="multipart/form-data">
                     {% csrf_token %}
                     <div class="modal-body">
                         <div class="mb-3">
                             <label class="form-label">Item Type Name</label>
                             <input type="text" class="form-control" name="name" id="edit-name" placeholder="Enter item type name">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Item Type Image</label>
+                            <input type="file" class="form-control" name="image" id="edit-image">
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -185,6 +204,7 @@
                         </button>
                     </div>
                 </form>
+                
             </div>
         </div>
     </div>
@@ -216,29 +236,28 @@
                 const button = event.relatedTarget;
                 const id = button.getAttribute('data-id');
                 const name = button.getAttribute('data-name');
-        
+                const imageUrl = button.getAttribute('data-image');  // Get image URL
+    
                 // Populate modal fields for Edit
                 const form = document.getElementById('edit-form');
                 const basePath = window.location.pathname.split('/')[1]; // Get the base path (e.g., 'administrator')
                 form.action = `/${basePath}/item-types/${id}/edit/`; // Dynamically append to the base path
+    
                 const nameInput = document.getElementById('edit-name');
                 nameInput.value = name;
-            });
-            
-            // Modal for Delete
-            const modalDelete = document.getElementById('modal-delete');
-            modalDelete.addEventListener('show.bs.modal', function (event) {
-                const button = event.relatedTarget;
-                const id = button.getAttribute('data-id');
-                const name = button.getAttribute('data-name');
-                const deleteForm = document.getElementById('delete-form');
-        
-                // Populate modal fields for Delete
-                document.getElementById('delete-item-name').textContent = name;
-                deleteForm.action = `/administrator/item-types/${id}/delete/`; // Dynamically append to the base path
+    
+                // Populate the image field if an image exists
+                const imageInput = document.getElementById('edit-image');
+                if (imageUrl) {
+                    imageInput.setAttribute('data-image', imageUrl); // Optionally set the image in a preview element
+                } else {
+                    imageInput.removeAttribute('data-image'); // Remove if no image
+                }
             });
         });
     })();
+    
+    
 </script>
 
 {% endblock %}

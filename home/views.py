@@ -26,7 +26,7 @@ def user_login(request):
 
 def item_types_list(request):
     """View to display all item types."""
-    item_types = ItemType.objects.all()
+    item_types = ItemType.objects.all().order_by("name")
     return render(request, 'home/list_of_item_types.html', {'item_types': item_types})
 
 

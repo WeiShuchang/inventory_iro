@@ -30,15 +30,24 @@
             {% endfor %}
         </div>
     {% endif %}
+  
+    
  
     <div class="card">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
             <h2 class="mb-0">{{ partnership.partner }}</h2>
-            <!-- Edit Button -->
-            <a href="javascript:void(0);" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editPartnershipModal">
-                Edit
-            </a>
+            <div>
+                <!-- Edit Button -->
+                <a href="javascript:void(0);" class="btn btn-primary btn-sm me-2" data-bs-toggle="modal" data-bs-target="#editPartnershipModal">
+                    Edit
+                </a>
+                <!-- Upload File Button -->
+                <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#uploadFileModal">
+                    Upload File
+                </button>
+            </div>
         </div>
+        
         <div class="card-body d-flex">
             <!-- Logo Section (Left side) -->
             <div class="mr-4" style="flex-shrink: 0; margin-right: 30px;">
@@ -81,19 +90,117 @@
 
     <div class="mt-5">
         <h3>Uploaded Files</h3>
-        <ul class="list-group">
-            {% for file in partnership_files %}
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <a href="{{ file.file.url }}" class="btn btn-link" download>{{ file.file.name }}</a>
-                    {% if file.description %}
-                        <span class="badge badge-info">{{ file.description }}</span>
-                    {% endif %}
-                </li>
-            {% endfor %}
-        </ul>
+        {% if partnership_files %}
+            <ul class="list-group">
+                {% for file in partnership_files %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <a href="{{ file.file.url }}" class="btn btn-link" download>{{ file.file.name }}</a>
+                            <span class="file-description">{{ file.description }}</span>
+                        </div>
+                        <div>
+                            <!-- View Button -->
+                            <a href="{{ file.file.url }}" target="_blank" class="btn btn-sm btn-primary">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye" viewBox="0 0 16 16">
+                                    <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z"/>
+                                    <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0"/>
+                                  </svg>
+                            </a>
+    
+                            <!-- Download Button -->
+                            <a href="{{ file.file.url }}" class="btn btn-sm btn-success" download>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-download" viewBox="0 0 16 16">
+                                    <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/>
+                                    <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/>
+                                  </svg>
+                            </a>
+    
+                            <!-- Delete Button -->
+                            <form method="post" class="delete-file-form d-inline">
+                                {% csrf_token %}
+                                <input type="hidden" name="file_id" value="{{ file.id }}">
+                                <button type="button" class="btn btn-sm btn-danger open-confirm-modal" aria-label="Delete File" data-file-id="{{ file.id }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
+                                        <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47M8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/>
+                                      </svg>
+                                </button>
+                            </form>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No files available.</p>
+        {% endif %}
     </div>
+    
+    
+    <!-- Modal for Viewing File -->
+    <div class="modal fade" id="filePreviewModal" tabindex="-1" aria-labelledby="filePreviewModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="filePreviewModalLabel">File Preview</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <iframe id="filePreviewIframe" src="" style="width: 100%; height: 500px;" frameborder="0"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    
      
    
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="confirmDeleteModalLabel">Confirm Delete</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          Are you sure you want to delete this file? This action cannot be undone.
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-danger" id="confirmDeleteButton">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<!-- File Upload Modal -->
+<div class="modal fade" id="uploadFileModal" tabindex="-1" aria-labelledby="uploadFileModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" enctype="multipart/form-data" action="{% url 'upload_file_to_partnership' partnership.id %}">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title" id="uploadFileModalLabel">Upload File</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="file" class="form-label">File</label>
+                        <input type="file" name="file" id="file" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea name="description" id="description" class="form-control" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Upload</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
 <div class="modal fade" id="editPartnershipModal" tabindex="-1" aria-labelledby="editPartnershipModalLabel" aria-hidden="true">
@@ -164,4 +271,81 @@
     </div>
 </div>
 
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let currentForm = null; // Track the form being submitted
+        let fileId = null; // Track the file ID being deleted
+
+        // Open the confirmation modal for delete
+        document.querySelectorAll(".open-confirm-modal").forEach((button) => {
+            button.addEventListener("click", function () {
+                fileId = this.getAttribute("data-file-id"); // Get the file ID
+                currentForm = this.closest("form"); // Store the form being submitted
+                const confirmModal = new bootstrap.Modal(
+                    document.getElementById("confirmDeleteModal")
+                );
+                confirmModal.show();
+            });
+        });
+
+        // Handle delete confirmation
+        document.getElementById("confirmDeleteButton").addEventListener("click", function () {
+            const formData = new FormData(currentForm);
+            fetch("{% url 'delete_partnership_file' %}", { // Use Django's URL template tag
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": formData.get("csrfmiddlewaretoken"), // CSRF token
+                },
+                body: new URLSearchParams(formData),
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    if (data.success) {
+                        currentForm.closest(".list-group-item").remove(); // Remove file from UI
+                        const confirmModal = bootstrap.Modal.getInstance(
+                            document.getElementById("confirmDeleteModal")
+                        );
+                        confirmModal.hide(); // Close the modal
+                    } else {
+                        alert(
+                            "Failed to delete file: " + (data.error || "Unknown error")
+                        );
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error:", error);
+                    alert("An error occurred.");
+                });
+        });
+
+        // Handle View Button Click
+        const viewButtons = document.querySelectorAll(".view-file-btn");
+        const filePreviewIframe = document.getElementById("filePreviewIframe");
+
+        viewButtons.forEach((button) => {
+            button.addEventListener("click", function () {
+                const fileUrl = button.getAttribute("data-file-url");
+                filePreviewIframe.src = fileUrl;
+            });
+        });
+
+        // Clear the iframe source when the modal is closed
+        document
+            .getElementById("filePreviewModal")
+            .addEventListener("hidden.bs.modal", function () {
+                filePreviewIframe.src = "";
+            });
+
+        // Automatically hide alert message after 4 seconds
+        let alertMessage = document.getElementById("alert-message");
+        if (alertMessage) {
+            setTimeout(function () {
+                alertMessage.style.display = "none";
+            }, 4000); // Adjusted to 4 seconds as per your request
+        }
+    });
+</script>
+
+  
 {% endblock content %}

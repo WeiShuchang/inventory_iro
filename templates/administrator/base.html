@@ -47,13 +47,16 @@
                   Inventory
                 </a>
                 <ul class="dropdown-menu" aria-labelledby="inventoryDropdown">
-                  <li><a class="dropdown-item" href="{% url 'item_list' %}">Supply and Property Inventory</a></li>
+                  <li><a class="dropdown-item" href="{% url 'item_list' %}">Full Inventory</a></li>
                   <li><a class="dropdown-item" href="{% url 'item_type_list' %}">Item Types</a></li>
                   <li><a class="dropdown-item" href="{% url 'archived_items' %}">Archived Items</a></li>
                 </ul>
               </li>
               <li class="nav-item">
                 <a href="{% url "partnership_list" %}" class="nav-link">Partnerships</a>
+              </li>
+              <li class="nav-item">
+                <a href="{% url "expenditures_list" %}" class="nav-link">Expenditures</a>
               </li>
             </ul>
       

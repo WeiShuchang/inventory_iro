@@ -22,5 +22,8 @@ urlpatterns = [
     path('account-logout/', views.logout_view, name="logout_route"),
     path('partnerships/', views.partnership_list, name='partnership_list'),
     path('partnership/<int:partnership_id>/', views.partnership_detail, name='partnership_detail'),
+    path('partnerships/<int:partnership_id>/upload-file/', views.upload_file_to_partnership, name='upload_file_to_partnership'),
+    path('administrator/delete-partnership-file/', views.delete_partnership_file, name='delete_partnership_file'),
+    path('expenditures/', views.expenditure_list, name="expenditures_list"),
 
 ]

@@ -19,8 +19,19 @@ class ItemForm(forms.ModelForm):
             'estimated_useful_life',
             'unit_price',
             'total_amount',
-            'remarks'
+            'remarks',
         ]
+
+    def clean_property_number(self):
+        property_number = self.cleaned_data.get('property_number')
+        # Check for duplicates, excluding the current item (for updates)
+        existing_items = Item.objects.filter(property_number=property_number)
+        if self.instance.pk:  # If editing an existing item
+            existing_items = existing_items.exclude(pk=self.instance.pk)
+        if existing_items.exists():
+            raise forms.ValidationError("An item with this property number already exists.")
+        return property_number
+
 
 class ItemTypeForm(forms.ModelForm):
     class Meta:

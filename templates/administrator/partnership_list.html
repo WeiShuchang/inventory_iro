@@ -2,6 +2,37 @@
 {% load static %}
 {% block content %}
 
+<style>
+    /* Target the table and make the text smaller */
+    .table td, .table th {
+        font-size: 0.75rem; /* Adjust the font size */
+    }
+
+    /* Optional: Reduce padding for a tighter layout */
+    .table td, .table th {
+        padding: 0.3rem;  /* Adjust padding */
+    }
+
+    /* Pagination with white background and black text */
+    .pagination .page-link {
+        background-color: #fff; /* White background */
+        color: #000; /* Black text */
+    
+    }
+    .pagination .page-link:hover {
+        background-color: #f1f1f1; /* Light gray background on hover */
+        color: #333; /* Darker shade of black for text on hover */
+    }
+    .pagination .page-item.disabled .page-link {
+        background-color: #e0e0e0; /* Light gray background for disabled items */
+        color: #888; /* Lighter gray text for a disabled look */
+    }
+
+    .pagination .page-item {
+        margin: 0 5px; /* Add margin to each page item for spacing */
+    }
+</style>
+
 
 
 <div class="page-wrapper">
@@ -36,9 +67,12 @@
         
         <form method="get" class="mb-4 container">
             <div class="row g-2 align-items-center">
+                <!-- Search Field -->
                 <div class="col-md-3">
                     <input type="text" name="q" class="form-control" placeholder="Search by Partner or Country" value="{{ query }}">
                 </div>
+        
+                <!-- Continent Filter -->
                 <div class="col-md-3">
                     <select name="continent" class="form-control">
                         <option value="">All Continents</option>
@@ -47,11 +81,25 @@
                         {% endfor %}
                     </select>
                 </div>
+        
+                <!-- Status Filter -->
+                <div class="col-md-3">
+                    <select name="status" class="form-control">
+                        <option value="">All Statuses</option>
+                        <option value="Active" {% if status_filter == "Active" %}selected{% endif %}>Active</option>
+                        <option value="Pending" {% if status_filter == "Pending" %}selected{% endif %}>Pending</option>
+                        <option value="Inactive" {% if status_filter == "Inactive" %}selected{% endif %}>Inactive</option>
+                        <option value="Completed" {% if status_filter == "Completed" %}selected{% endif %}>Completed</option>
+                    </select>
+                </div>
+        
+                <!-- Search Button -->
                 <div class="col-auto">
                     <button type="submit" class="btn btn-primary">Search</button>
                 </div>
             </div>
         </form>
+        
 
         {% if request.GET.q or request.GET.continent %}
             {% if partnerships %}
@@ -115,7 +163,7 @@
                                     <td onclick="window.location.href='{% url 'partnership_detail' partnership.id %}'" style="cursor: pointer;">{{ partnership.partner }}</td>
                                     <td onclick="window.location.href='{% url 'partnership_detail' partnership.id %}'" style="cursor: pointer;">{{ partnership.get_continent_display }}</td>
                                     <td onclick="window.location.href='{% url 'partnership_detail' partnership.id %}'" style="cursor: pointer;">
-                                        <span class="flag flag-country-{{ partnership.country|lower|slice:"0:2" }}"></span>
+                                       
                                         {{ partnership.country }}
                                     </td>
                                     <td onclick="window.location.href='{% url 'partnership_detail' partnership.id %}'" style="cursor: pointer;">{{ partnership.type_of_organization }}</td>
@@ -138,38 +186,38 @@
             </div>
         </div>
         
-
-            <nav aria-label="Page navigation">
-                <ul class="pagination justify-content-center">
-                    {% if partnerships.has_previous %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page=1{% if query %}&q={{ query }}{% endif %}{% if continent_filter %}&continent={{ continent_filter }}{% endif %}" aria-label="First">
-                                &laquo;&laquo; First
-                            </a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ partnerships.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if continent_filter %}&continent={{ continent_filter }}{% endif %}" aria-label="Previous">
-                                &laquo; Previous
-                            </a>
-                        </li>
-                    {% endif %}
-                    <li class="page-item disabled">
-                        <span class="page-link">Page {{ partnerships.number }} of {{ partnerships.paginator.num_pages }}</span>
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                {% if partnerships.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% if query %}&q={{ query }}{% endif %}{% if continent_filter %}&continent={{ continent_filter }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}" aria-label="First">
+                            &laquo;&laquo; First
+                        </a>
                     </li>
-                    {% if partnerships.has_next %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ partnerships.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if continent_filter %}&continent={{ continent_filter }}{% endif %}" aria-label="Next">
-                                Next &raquo;
-                            </a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ partnerships.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}{% if continent_filter %}&continent={{ continent_filter }}{% endif %}" aria-label="Last">
-                                Last &raquo;&raquo;
-                            </a>
-                        </li>
-                    {% endif %}
-                </ul>
-            </nav>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ partnerships.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if continent_filter %}&continent={{ continent_filter }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}" aria-label="Previous">
+                            &laquo; Previous
+                        </a>
+                    </li>
+                {% endif %}
+                <li class="page-item disabled">
+                    <span class="page-link">Page {{ partnerships.number }} of {{ partnerships.paginator.num_pages }}</span>
+                </li>
+                {% if partnerships.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ partnerships.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if continent_filter %}&continent={{ continent_filter }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}" aria-label="Next">
+                            Next &raquo;
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ partnerships.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}{% if continent_filter %}&continent={{ continent_filter }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}" aria-label="Last">
+                            Last &raquo;&raquo;
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+        
             
         </div>
     </div>
@@ -247,6 +295,25 @@
         </div>
     </div>
 </div>
+
+
+<script>
+    document.getElementById('status-filter').addEventListener('change', function() {
+        const selectedStatus = this.value;
+        const params = new URLSearchParams(window.location.search);
+
+        // Update the status parameter in the URL
+        if (selectedStatus) {
+            params.set('status', selectedStatus);
+        } else {
+            params.delete('status');
+        }
+
+        // Reload the page with updated parameters
+        window.location.search = params.toString();
+    });
+</script>
+
 
 
 {% endblock content %}

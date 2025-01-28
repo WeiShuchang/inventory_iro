@@ -10,7 +10,7 @@
                         Overview
                     </div>
                     <h2 class="page-title">
-                        Supply and Property Inventory
+                        International Relations Office Inventory
                     </h2>
                    
                 </div>
@@ -123,55 +123,57 @@
                 {% endif %}
             {% endif %}
 
-
-        <!-- Table to display items -->
-        <div class="card">
-            <div class="card-body">
-                <div id="table-default" class="table-responsive">
-                    <table class="table table-sm datatable card-table table-bordered table-hover">
-                        <thead style="color: black; font-weight:bold;">
-                            <tr>
-                                <th>Sector/Office/ <br>Division/College</th>
-                         
-                                <th>Property Number</th>
-                                <th>Responsible <br>Person</th>
-                                <th>Qty</th>
-                                <th>Unit</th>
-                                <th>Type</th>
-                                <th>Item Description</th>
-                                <th>Date Acquired</th>
-                                <th>Fund</th>
-                                <th>PPE Class</th>
-                                <th>Est.Useful Life</th>
-                                <th>Unit Price</th>
-                                <th>Total Amount</th>
-                                <th>Remarks</th>
-                            </tr>
-                        </thead>
-                        <tbody class="table-tbody">
-                            {% for item in items %}
-                                <tr onclick="window.location.href='{% url 'item_detail_admin' item.id %}'" style="cursor: pointer;">
-                                    <td>{{ item.sector_office_division_college }}</td>
-                            
-                                    <td>{{ item.property_number }}</td>
-                                    <td>{{ item.responsible_person }}</td>
-                                    <td>{{ item.quantity }}</td>
-                                    <td>{{ item.unit }}</td>
-                                    <td>{{ item.item_type }}</td>
-                                    <td>{{ item.description }}</td>
-                                    <td>{{ item.date_acquired|date:"F d, Y" }}</td>
-                                    <td>{{ item.fund }}</td>
-                                    <td>{{ item.ppe_class }}</td>
-                                    <td>{{ item.estimated_useful_life }} years</td>
-                                    <td>₱{{ item.unit_price|floatformat:2|intcomma }}</td>
-                                    <td>₱{{ item.total_amount|floatformat:2|intcomma }}</td>
-                                    <td>{{item.remarks}}</td>
+            <!-- Table to display items -->
+            <div class="card">
+                <div class="card-body">
+                    <div id="table-default" class="table-responsive">
+                        <table class="table table-sm datatable card-table table-bordered table-hover">
+                            <thead style="color: black; font-weight:bold;">
+                                <tr>  
+                                    <th>Property Number</th>
+                                    <th>Sector/Office/ <br>Division/College</th>
+                                    <th>Responsible <br>Person</th>
+                                    <th>Type</th>
+                                    <th>Item Description</th>
+                                    <th>Date Acquired</th>
+                                    <th>Fund</th>
+                                    <th>PPE Class</th>
+                                    <th>Est.Useful Life</th>
+                                    <th>Unit</th>
+                                    <th>Unit Price</th>
+                                    <th>Qty</th>
+                                    <th>Total Amount</th>
+                                    <th>Category</th> <!-- Added category column -->
+                                    <th>Remarks</th>
                                 </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody class="table-tbody">
+                                {% for item in items %}
+                                    <tr onclick="window.location.href='{% url 'item_detail_admin' item.id %}'" style="cursor: pointer;">
+                                        <td>{{ item.property_number }}</td>
+                                        <td>{{ item.sector_office_division_college }}</td>
+                                      
+                                        <td>{{ item.responsible_person }}</td>
+                                        <td>{{ item.item_type }}</td>
+                                        <td>{{ item.description }}</td>
+                                        <td>{{ item.date_acquired|date:"F d, Y" }}</td>
+                                        <td>{{ item.fund }}</td>
+                                        <td>{{ item.ppe_class }}</td>
+                                        <td>{{ item.estimated_useful_life }} years</td>
+                                        <td>{{ item.unit }}</td>
+                                        <td>₱{{ item.unit_price|floatformat:2|intcomma }}</td>
+                                        <td>{{ item.quantity }}</td>
+                                        <td>₱{{ item.total_amount|floatformat:2|intcomma }}</td>
+                                        <td>{{ item.category }}</td> <!-- Display the category -->
+                                        <td>{{ item.remarks }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
+
     
             <!-- Pagination -->
             <nav aria-label="Page navigation">
@@ -225,11 +227,11 @@
                     <div class="row">
                         <div class="mb-3 col-md-4">
                             <label class="form-label">Sector/Office/Division/College</label>
-                            <input type="text" class="form-control" name="sector_office_division_college" placeholder="Enter Value" value="{{ request.POST.sector_office_division_college }}" required>
+                            <input type="text" class="form-control" name="sector_office_division_college" placeholder="Enter Value" value="GASS OP" required>
                         </div>
                         <div class="mb-3 col-md-4">
                             <label class="form-label">Operating Unit / Project</label>
-                            <input type="text" class="form-control" name="operating_unit_project" placeholder="Enter operating unit / project" value="{{ request.POST.operating_unit_project }}" required>
+                            <input type="text" class="form-control" name="operating_unit_project" placeholder="Enter operating unit / project" value="IRO" required>
                         </div>
                         <div class="mb-3 col-md-4">
                             <label class="form-label">Property Number</label>
@@ -272,11 +274,11 @@
                         </div>
                         <div class="mb-3 col-md-4">
                             <label class="form-label">PPE Class</label>
-                            <input type="text" class="form-control" name="ppe_class" placeholder="Enter PPE class" value="{{ request.POST.ppe_class }}" required>
+                            <input type="text" class="form-control" name="ppe_class" placeholder="Enter PPE class" value="0" required>
                         </div>
                         <div class="mb-3 col-md-4">
                             <label class="form-label">Estimated Useful Life (years)</label>
-                            <input type="number" class="form-control" name="estimated_useful_life" placeholder="Enter estimated useful life" value="{{ request.POST.estimated_useful_life }}" required>
+                            <input type="number" class="form-control" name="estimated_useful_life" placeholder="Enter estimated useful life" value="1" required>
                         </div>
                         <div class="mb-3 col-md-3">
                             <label class="form-label">Unit Price</label>
