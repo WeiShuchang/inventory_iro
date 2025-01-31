@@ -25,5 +25,8 @@ urlpatterns = [
     path('partnerships/<int:partnership_id>/upload-file/', views.upload_file_to_partnership, name='upload_file_to_partnership'),
     path('administrator/delete-partnership-file/', views.delete_partnership_file, name='delete_partnership_file'),
     path('expenditures/', views.expenditure_list, name="expenditures_list"),
-
+    path('year/<int:year_id>/add-expenditure/', views.add_expenditure, name='add_expenditure'),
+    path('years/', views.year_list, name='year_list'),
+    path('years/<int:year_id>/', views.year_detail, name='year_detail'),
+    
 ]

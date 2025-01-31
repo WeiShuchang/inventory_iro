@@ -84,11 +84,19 @@ class PartnershipFiles(models.Model):
 
     def __str__(self):
         return f"File for {self.partnership.partner}: {self.file.name}"
+    
+
+class Year(models.Model):
+    year = models.PositiveIntegerField(unique=True)
+    description = models.TextField(blank=True, null=True)  # New description field
+
+    def __str__(self):
+        return str(self.year)
 
 class Expenditure(models.Model):
     # Classification choices
     CLASSIFICATION_CHOICES = [
-        ('Common Supplies and Equipment Available at PS-DBM', 'Common Supplies and Equipment Available at PS-DBM'),
+
         ('Other Items not available at PS DBM but regularly purchased from other sources', 'Other Items not available at PS DBM but regularly purchased from other sources'),
         ('Other Supplies and Materials', 'Other Supplies and Materials'),
         ('Services, Rentals, and Others', 'Services, Rentals, and Others'),
@@ -118,6 +126,9 @@ class Expenditure(models.Model):
     
     remarks = models.TextField(blank=True, null=True)
 
+    # Connect to the Year model using a ForeignKey
+    year = models.ForeignKey(Year, on_delete=models.CASCADE, null=True, blank=True)
+
     def save(self, *args, **kwargs):
         # Calculate total quantity and total amount before saving
         self.total_quantity = self.quarter1 + self.quarter2 + self.quarter3 + self.quarter4
@@ -127,11 +138,12 @@ class Expenditure(models.Model):
         if not self.pk:  # Only assign on create
             similar_items = Expenditure.objects.filter(
                 classification=self.classification,
-                expenditure_type=self.expenditure_type
+                expenditure_type=self.expenditure_type,
+                year=self.year  # Include year in the filter
             ).count()
             self.item_number = similar_items + 1
 
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.classification} - {self.expenditure_type} - Item {self.item_number}"
+        return f"{self.year.year} - {self.classification} - {self.expenditure_type} - Item {self.item_number}"

@@ -1,0 +1,268 @@
+{% extends "administrator/base.html" %}
+{% load custom_filters %}
+{% load humanize %}
+
+{% block content %}
+<style>
+    /* Target the table and make the text smaller */
+    .table td, .table th {
+        font-size: 0.75rem; /* Adjust the font size */
+    }
+
+    /* Optional: Reduce padding for a tighter layout */
+    .table td, .table th {
+        padding: 0.3rem;  /* Adjust padding */
+    }
+
+    /* Classification and expenditure type headings */
+    h4.classification-heading {
+        font-size: 1.1rem;
+        margin-top: 1.5rem;
+        margin-bottom: 0.75rem;
+        color: #000;
+    }
+
+    h5.expenditure-type-heading {
+        font-size: 1rem;
+        margin-top: 1rem;
+        margin-bottom: 0.5rem;
+        color: #444;
+    }
+
+    /* Pagination styles remain the same */
+    /* ... (keep existing pagination styles) ... */
+
+    /* Adjusted column widths for new structure */
+    .table th:nth-child(1), .table td:nth-child(1) {
+        width: 6%; /* Item Number */
+    }
+
+    .table th:nth-child(2), .table td:nth-child(2) {
+        width: 30%; /* Description */
+    }
+
+    .table th:nth-child(3), .table td:nth-child(3) {
+        width: 23%; /* Mode of Procurement */
+    }
+
+    .table th:nth-child(4), .table td:nth-child(4), /* Q1 */
+    .table th:nth-child(5), .table td:nth-child(5), /* Q2 */
+    .table th:nth-child(6), .table td:nth-child(6), /* Q3 */
+    .table th:nth-child(7), .table td:nth-child(7) { /* Q4 */
+        width: 5% !important;
+    }
+
+    .table th:nth-child(8), .table td:nth-child(8) {
+        width: 3%; /* Total Quantity */
+    }
+
+    .table th:nth-child(9), .table td:nth-child(9) {
+        width: 8%; /* Unit Measure */
+    }
+
+    .table th:nth-child(10), .table td:nth-child(10) {
+        width: 8%; /* Unit Price */
+    }
+
+    .table th:nth-child(11), .table td:nth-child(11) {
+        width: 8%; /* Total Amount */
+    }
+
+    .table th:nth-child(12), .table td:nth-child(12) {
+        width: 10%; /* Remarks */
+    }
+</style>
+
+
+<div class="page-wrapper">
+    <div class="page-header d-print-none">
+        <div class="container-xl">
+            <div class="row g-2 align-items-center">
+                <div class="col d-flex align-items-center">
+                    <a href="{% url 'year_list' %}" class="btn btn-outline" aria-label="Go Back">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left-short" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M12 8a.5.5 0 0 1-.5.5H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5a.5.5 0 0 1 .5.5"/>
+                        </svg>
+                    </a>
+                    <h2 class="page-title mx-2">
+                        Expenditures in Year {{ selected_year.year}}
+                    </h2>
+                </div>
+                
+                <div class="col-auto ms-auto d-print-none">
+                    <div class="btn-list">
+                        <a href="#" class="btn btn-primary d-none d-sm-inline-block" data-bs-toggle="modal" data-bs-target="#modal-add-expenditure">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                <path d="M12 5l0 14" />
+                                <path d="M5 12l14 0" />
+                            </svg>
+                            Add New Expenditure
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-body container-fluid">
+        <div class="card">
+            <div class="card-body">
+                {% for classification, expenditures in grouped_expenditures.items %}
+                    <h5 class="classification-heading">{{ classification }}</h5>
+    
+                    {% for expenditure_type, items in expenditures.items %}
+                        <div class="table-responsive mb-3">
+                            <table class="table table-sm table-hover table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th colspan="12">{{ expenditure_type }}</th>
+                                    </tr>
+                                    <tr>
+                                        <th>Item<br>Number</th>
+                                        <th>Description</th>
+                                        <th>Mode of<br>Procurement</th>
+                                        <th>Q1</th>
+                                        <th>Q2</th>
+                                        <th>Q3</th>
+                                        <th>Q4</th>
+                                        <th>Total<br>Quantity</th>
+                                        <th>Unit<br>Measure</th>
+                                        <th>Unit Price</th>
+                                        <th>Total Amount</th>
+                                        <th>Remarks</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in items %}
+                                        <tr>
+                                            <td>{{ item.item_number }}</td>
+                                            <td>{{ item.description }}</td>
+                                            <td>{{ item.mode_of_procurement }}</td>
+                                            <td>{{ item.quarter1 }}</td>
+                                            <td>{{ item.quarter2 }}</td>
+                                            <td>{{ item.quarter3 }}</td>
+                                            <td>{{ item.quarter4 }}</td>
+                                            <td>{{ item.total_quantity }}</td>
+                                            <td>{{ item.unit_of_measure }}</td>
+                                            <td>₱{{ item.unit_price|floatformat:2|intcomma }}</td> <!-- Format price -->
+                                            <td>₱{{ item.total_amount|floatformat:2|intcomma }}</td> <!-- Format price -->
+                                            <td>{{ item.remarks }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                    <!-- Subtotal Row -->
+                                    <tr class="fw-bold">
+                                        <td colspan="10" class="text-end">Subtotal:</td>
+                                        <td>₱{{ subtotals|get_item:classification|get_item:expenditure_type|floatformat:2|intcomma }}</td> <!-- Format subtotal -->
+                                        <td></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+    
+                <!-- Totals Table -->
+                <div class="table-responsive mt-4">
+                    <table class="table table-sm table-bordered table-fixed w-100">
+                        <thead>
+                            <tr>
+                                <th class="w-50">Classification</th>
+                                <th class="w-50 text-end">Total Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for classification, total in totals_per_classification.items %}
+                                <tr>
+                                    <td>{{ classification }}</td>
+                                    <td class="text-end">₱{{ total|floatformat:2|intcomma }}</td> <!-- Format total -->
+                                </tr>
+                            {% endfor %}
+                            <!-- Grand Total Row -->
+                            <tr class="fw-bold">
+                                <td class="text-end">Grand Total:</td>
+                                <td class="text-end">₱{{ grand_total|floatformat:2|intcomma }}</td> <!-- Format grand total -->
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<!-- Modal for Adding New Expenditure -->
+<div class="modal fade" id="modal-add-expenditure" tabindex="-1" aria-labelledby="modal-add-expenditure-label" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modal-add-expenditure-label">Add New Expenditure</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="add-expenditure-form" method="post" action="{% url 'add_expenditure' year_id=selected_year.id %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="classification" class="form-label">Classification</label>
+                        <select class="form-select" id="classification" name="classification" required>
+                            {% for value, label in classification_choices %}
+                                <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="expenditure_type" class="form-label">Expenditure Type</label>
+                        <input type="text" class="form-control" id="expenditure_type" name="expenditure_type" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="mode_of_procurement" class="form-label">Mode of Procurement</label>
+                        <input type="text" class="form-control" id="mode_of_procurement" name="mode_of_procurement" required>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <label for="quarter1" class="form-label">Q1 Quantity</label>
+                            <input type="number" class="form-control" id="quarter1" name="quarter1" value="0" min="0" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="quarter2" class="form-label">Q2 Quantity</label>
+                            <input type="number" class="form-control" id="quarter2" name="quarter2" value="0" min="0" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="quarter3" class="form-label">Q3 Quantity</label>
+                            <input type="number" class="form-control" id="quarter3" name="quarter3" value="0" min="0" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="quarter4" class="form-label">Q4 Quantity</label>
+                            <input type="number" class="form-control" id="quarter4" name="quarter4" value="0" min="0" required>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="mb-3 col-md-6">
+                            <label for="unit_of_measure" class="form-label">Unit of Measure</label>
+                            <input type="text" class="form-control" id="unit_of_measure" name="unit_of_measure" required>
+                        </div>
+                        <div class="mb-3 col-md-6">
+                            <label for="unit_price" class="form-label">Unit Price</label>
+                            <input type="number" class="form-control" id="unit_price" name="unit_price" step="0.01" required>
+                        </div>
+                    </div>
+                   
+                    <div class="mb-3">
+                        <label for="remarks" class="form-label">Remarks</label>
+                        <textarea class="form-control" id="remarks" name="remarks" rows="2"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" form="add-expenditure-form" class="btn btn-primary">Save Expenditure</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

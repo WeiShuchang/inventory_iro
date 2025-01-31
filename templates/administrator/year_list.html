@@ -1,0 +1,74 @@
+{% extends "administrator/base.html" %}
+
+{% block content %}
+
+<div class=" page-wrapper ">
+
+
+    <div class="page-header d-print-none">
+        <div class="container-xl">
+            <div class="row g-2 align-items-center">
+                <div class="col">
+                    <div class="page-pretitle">
+                        Overview
+                    </div>
+                    <h2 class="page-title">
+                        Expenditure Year List
+                    </h2>
+                </div>
+                <div class="col-auto ms-auto d-print-none">
+                    <div class="btn-list">
+                        <a href="#" class="btn btn-primary d-none d-sm-inline-block" data-bs-toggle="modal" data-bs-target="#modal-add-partnership">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                <path d="M12 5l0 14" />
+                                <path d="M5 12l14 0" />
+                            </svg>
+                            Add New Year
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="page-body container">
+        
+        <div class="row">
+            {% for year in years %}
+            <div class="col-md-6 col-lg-3 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="card-title">{{ year.year }}</h3>
+                        <p class="text-muted">{{ year.description|default:"No description available." }}</p>
+                    </div>
+                    <!-- Card footer -->
+                    <div class="card-footer">
+                        <a href="{% url 'year_detail' year.id %}" class="btn btn-primary">View Details</a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <p>No years available.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    </div>
+    
+
+
+
+
+
+{% endblock content %}
+
+
+
+
+
+
+
+

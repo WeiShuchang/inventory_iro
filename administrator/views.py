@@ -1,4 +1,4 @@
-from .models import Item, ItemType, ItemImage, PartnershipFiles, Partnership, Expenditure
+from .models import Item, ItemType, ItemImage, PartnershipFiles, Partnership, Expenditure, Year
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from django.shortcuts import render, redirect, get_object_or_404
@@ -9,7 +9,9 @@ from django.views.decorators.csrf import csrf_exempt
 from openpyxl.utils import get_column_letter
 from django.core.paginator import Paginator
 from django.contrib.auth import logout
+from decimal import Decimal
 from openpyxl.styles import Alignment
+from collections import defaultdict
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.db import IntegrityError
 from reportlab.lib.units import inch
@@ -717,6 +719,105 @@ def expenditure_list(request):
 
         grouped_expenditures[classification][expenditure_type].append(expenditure)
 
-    # Pass the grouped expenditures to the template
-    context = {"grouped_expenditures": grouped_expenditures}
-    return render(request, "administrator/expenditures.html", context)
+    # Pass the grouped expenditures and classification choices to the template
+    context = {
+        "grouped_expenditures": grouped_expenditures,
+        "classification_choices": Expenditure.CLASSIFICATION_CHOICES,  # Add classification choices
+    }
+    return render(request, "administrator/expenditure_details.html", context)
+
+
+def add_expenditure(request, year_id):
+    year = get_object_or_404(Year, id=year_id)  # Get the selected year
+
+    if request.method == 'POST':
+        # Extract data from the form
+        classification = request.POST.get('classification')
+        expenditure_type = request.POST.get('expenditure_type')
+        description = request.POST.get('description')
+        mode_of_procurement = request.POST.get('mode_of_procurement')
+        quarter1 = int(request.POST.get('quarter1', 0))
+        quarter2 = int(request.POST.get('quarter2', 0))
+        quarter3 = int(request.POST.get('quarter3', 0))
+        quarter4 = int(request.POST.get('quarter4', 0))
+        unit_of_measure = request.POST.get('unit_of_measure')
+        unit_price = float(request.POST.get('unit_price'))
+        remarks = request.POST.get('remarks', '')
+
+        # Create and save the new expenditure
+        try:
+            expenditure = Expenditure(
+                year=year,  # Associate the expenditure with the selected year
+                classification=classification,
+                expenditure_type=expenditure_type,
+                description=description,
+                mode_of_procurement=mode_of_procurement,
+                quarter1=quarter1,
+                quarter2=quarter2,
+                quarter3=quarter3,
+                quarter4=quarter4,
+                unit_of_measure=unit_of_measure,
+                unit_price=unit_price,
+                remarks=remarks
+            )
+            expenditure.save()
+            messages.success(request, 'Expenditure added successfully!')
+        except Exception as e:
+            messages.error(request, f'Error adding expenditure: {str(e)}')
+
+        return redirect('year_detail', year_id=year_id)  # Redirect back to the year detail page
+
+    return redirect('year_detail', year_id=year_id)  # Redirect if not a POST request
+
+def year_list(request):
+    # Fetch all Year instances from the database
+    years = Year.objects.all()
+    
+    # Pass the years to the template
+    context = {
+        'years': years,
+    }
+    
+    return render(request, 'administrator/year_list.html', context)
+
+
+def year_detail(request, year_id):
+    year = get_object_or_404(Year, id=year_id)
+    expenditures = Expenditure.objects.filter(year=year).order_by("classification", "expenditure_type", "item_number")
+
+    grouped_expenditures = {}
+    subtotals = defaultdict(lambda: defaultdict(lambda: Decimal(0)))
+    totals_per_classification = defaultdict(Decimal)
+    grand_total = Decimal(0)
+
+    for expenditure in expenditures:
+        classification = expenditure.classification
+        expenditure_type = expenditure.expenditure_type
+
+        if classification not in grouped_expenditures:
+            grouped_expenditures[classification] = {}
+
+        if expenditure_type not in grouped_expenditures[classification]:
+            grouped_expenditures[classification][expenditure_type] = []
+
+        grouped_expenditures[classification][expenditure_type].append(expenditure)
+
+        # Compute subtotal for expenditure type
+        subtotals[classification][expenditure_type] += Decimal(expenditure.total_amount)
+
+        # Compute total per classification
+        totals_per_classification[classification] += Decimal(expenditure.total_amount)
+
+        # Compute grand total
+        grand_total += Decimal(expenditure.total_amount)
+
+    context = {
+    "grouped_expenditures": grouped_expenditures,
+    "subtotals": {k: dict(v) for k, v in subtotals.items()},  # Convert nested defaultdict to dict
+    "totals_per_classification": dict(totals_per_classification),  # Convert defaultdict to dict
+    "grand_total": grand_total,
+    "classification_choices": Expenditure.CLASSIFICATION_CHOICES,
+    "selected_year": year,
+    }
+
+    return render(request, "administrator/year_detail.html", context)
