@@ -1,0 +1,115 @@
+{% extends "administrator/base.html" %}
+
+
+{% block content %}
+
+<style>
+    /* Target the table and make the text smaller */
+    .table td, .table th {
+        font-size: 0.75rem; /* Adjust the font size */
+    }
+
+    /* Optional: Reduce padding for a tighter layout */
+    .table td, .table th {
+        padding: 0.3rem;  /* Adjust padding */
+    }
+
+    /* Pagination with white background and black text */
+    .pagination .page-link {
+        background-color: #fff; /* White background */
+        color: #000; /* Black text */
+    
+    }
+    .pagination .page-link:hover {
+        background-color: #f1f1f1; /* Light gray background on hover */
+        color: #333; /* Darker shade of black for text on hover */
+    }
+    .pagination .page-item.disabled .page-link {
+        background-color: #e0e0e0; /* Light gray background for disabled items */
+        color: #888; /* Lighter gray text for a disabled look */
+    }
+
+    .pagination .page-item {
+        margin: 0 5px; /* Add margin to each page item for spacing */
+    }
+</style>
+
+
+
+<div class="page-wrapper">
+    <div class="page-header d-print-none">
+        <div class="container-xl">
+            <div class="row g-2 align-items-center">
+                <div class="col">
+                    <div class="page-pretitle">
+                        Removed Partnerships
+                    </div>
+                    <h2 class="page-title">
+                        Partnerships Removed from List
+                    </h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-body container-fluid">
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th>Status</th>
+                                <th>Logo</th>
+                                <th>Partner</th>
+                                <th>Continent</th>
+                                <th>Country</th>
+                                <th>Type of Organization</th>
+                                <th>Files</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for partnership in removed_partnerships %}
+                                <tr>
+                                    <td>
+                                        <span class="badge rounded-circle me-1 
+                                            {% if partnership.status == 'Active' %}bg-success{% elif partnership.status == 'Pending' %}bg-warning{% elif partnership.status == 'Inactive' %}bg-danger{% elif partnership.status == 'Completed' %}bg-info{% endif %}" 
+                                            style="width: 10px; height: 10px; display: inline-block;"></span>
+                                        {{ partnership.status }}
+                                    </td>
+                                    <td>
+                                        {% if partnership.logo %}
+                                            <img src="{{ partnership.logo.url }}" alt="{{ partnership.partner }}" class="img-thumbnail" style="max-width: 80px;">
+                                        {% else %}
+                                            No Logo
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ partnership.partner }}</td>
+                                    <td>{{ partnership.get_continent_display }}</td>
+                                    <td>{{ partnership.country }}</td>
+                                    <td>{{ partnership.type_of_organization }}</td>
+                                    <td>
+                                        {% if partnership.files.all %}
+                                            {% for file in partnership.files.all %}
+                                                <a href="{{ file.file.url }}" download>{{ file.file.name|default:"Download File" }}</a><br>
+                                            {% empty %}
+                                                No files available
+                                            {% endfor %}
+                                        {% else %}
+                                            No files
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+{% endblock content %}

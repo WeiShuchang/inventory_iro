@@ -28,5 +28,8 @@ urlpatterns = [
     path('year/<int:year_id>/add-expenditure/', views.add_expenditure, name='add_expenditure'),
     path('years/', views.year_list, name='year_list'),
     path('years/<int:year_id>/', views.year_detail, name='year_detail'),
-    
+    path('partnership/<int:partnership_id>/remove/', views.remove_partnership, name='remove_partnership'),
+    path('removed_partnerships/', views.removed_partnerships_view, name='removed_partnerships'),
+    path('partnerships/<int:partnership_id>/edit/', views.edit_partnership, name='edit_partnership'),
+    path('delete-expenditure/', views.delete_expenditure, name='delete_expenditure'),
 ]

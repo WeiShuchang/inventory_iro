@@ -1,6 +1,27 @@
 {% extends "administrator/base.html" %}
 
 {% block content %}
+
+<style>
+    /* Pagination with white background and black text */
+    .pagination .page-link {
+        background-color: #fff; /* White background */
+        color: #000; /* Black text */
+    
+    }
+    .pagination .page-link:hover {
+        background-color: #f1f1f1; /* Light gray background on hover */
+        color: #333; /* Darker shade of black for text on hover */
+    }
+    .pagination .page-item.disabled .page-link {
+        background-color: #e0e0e0; /* Light gray background for disabled items */
+        color: #888; /* Lighter gray text for a disabled look */
+    }
+
+    .pagination .page-item {
+        margin: 0 5px; /* Add margin to each page item for spacing */
+    }
+</style>
 <div class="page-wrapper">
     <div class="page-header d-print-none mb-2">
         <div class="container-xl">
@@ -32,6 +53,7 @@
                         </a>
                     </div>
                 </div>
+                
             </div>
         </div>
     </div>
@@ -56,11 +78,37 @@
             {% endfor %}
         </div>
         {% endif %}
+        
+        <div class="row g-2 container ">
+            <div class="col-md-3  ">
+                <form method="GET" action="{% url 'item_type_list' %}" class="mb-3">
+                    <div class="input-group">
+                        <input type="text" name="q" class="form-control" placeholder="Search Item Type..." value="{{ query }}">
+                        <button type="submit" class="btn btn-primary">Search</button>
+                        {% if query %}
+                            <a href="{% url 'item_type_list' %}" class="btn btn-secondary">Clear</a>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+            {% if query %}
+                {% if itemtypes %}
+                    <div class="alert alert-info" role="alert">
+                        Showing {{ itemtypes.paginator.count }} result(s) for "<strong>{{ query }}</strong>"
+                    </div>
+                {% else %}
+                    <div class="alert alert-secondary" role="alert">
+                        No results found for "<strong>{{ query }}</strong>". Try a different search.
+                    </div>
+                {% endif %}
+            {% endif %}
+
+        </div>
     
         <div class="col-12">
             <div class="card">
                 <div class="table-responsive">
-                    <table class="table card-table table-vcenter text-nowrap datatable">
+                    <table class="table table-sm card-table table-vcenter text-nowrap datatable">
                         <thead>
                             <tr>
                                 <th>Item Type</th>
@@ -110,6 +158,30 @@
             </div>
         </div>
     </div>
+    
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            {% if itemtypes.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1{% if query %}&q={{ query }}{% endif %}" aria-label="First">&laquo;&laquo; First</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ itemtypes.previous_page_number }}{% if query %}&q={{ query }}{% endif %}" aria-label="Previous">&laquo; Previous</a>
+                </li>
+            {% endif %}
+            <li class="page-item disabled">
+                <span class="page-link">Page {{ itemtypes.number }} of {{ itemtypes.paginator.num_pages }}</span>
+            </li>
+            {% if itemtypes.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ itemtypes.next_page_number }}{% if query %}&q={{ query }}{% endif %}" aria-label="Next">Next &raquo;</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ itemtypes.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}" aria-label="Last">Last &raquo;&raquo;</a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
     
     <!-- Delete Confirmation Modal -->
     <div class="modal fade" id="modal-delete" tabindex="-1" aria-labelledby="modal-delete-label" aria-hidden="true">

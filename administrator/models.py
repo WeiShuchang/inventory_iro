@@ -73,6 +73,7 @@ class Partnership(models.Model):
     logo = models.ImageField(upload_to='partner_logos/', blank=True, null=True)
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='Pending')
     is_removed_from_list = models.BooleanField(default=False)
+    url = models.URLField(max_length=510, blank=True, null=True)  # New URL field
 
     def __str__(self):
         return f"{self.partner} ({self.country})"

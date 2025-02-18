@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
-from administrator.models import ItemType, Item
+from administrator.models import ItemType, Item, Partnership
 
 # Create your views here.
 def landing_page_view(request):
@@ -54,3 +54,18 @@ def item_detail(request, pk):
         'images': item.images.all()  # Fetch related images using the related_name
     }
     return render(request, 'home/item_information.html', context)
+
+
+def partnership_list(request):
+    # Fetch all partnerships that are not removed from the list
+    partnerships = Partnership.objects.filter(is_removed_from_list=False).order_by("continent", "country")
+
+    # Organize partnerships by continent
+    continents = {}
+    for partnership in partnerships:
+        if partnership.continent not in continents:
+            continents[partnership.continent] = []
+        continents[partnership.continent].append(partnership)
+
+    # Pass the grouped partnerships to the template
+    return render(request, "home/international_partners_list.html", {'continents': continents})

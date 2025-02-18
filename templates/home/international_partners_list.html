@@ -1,0 +1,235 @@
+{% extends "home/base.html" %}
+{% load static %}
+{% block content %}
+<style>
+ 
+    .header-container h1 {
+        font-size: 2.5rem;
+        color: #36599f;
+    }
+    .header-container h2{
+        font-size: 2rem;
+        color: #36599f;
+    }
+    .logo-hover {
+        transition: opacity 0.3s ease;
+    }
+
+    .logo-hover:hover {
+        opacity: 0.7; /* Reduces transparency on hover */
+    }
+    
+    .map-container {
+        width: 90%;
+        margin: 0 auto;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    .map-container img {
+        max-width: 100%;
+        height: auto;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+    }
+    .accordion-container {
+        width: 90%;
+        margin: 0 auto;
+    }
+    .accordion-header {
+        background-color: #36599f;
+        color: white;
+        padding: 10px 10px 10px 30px; /* Add left padding for the arrow */
+        cursor: pointer;
+        text-align: left;
+        border: none;
+        outline: none;
+        transition: background-color 0.3s ease;
+        width: 100%; /* Ensure the button takes full width */
+        display: block; /* Make it a block-level element */
+        position: relative; /* For positioning the arrow */
+    }
+    .accordion-header:hover {
+        background-color: #2a4a7f;
+    }
+    .accordion-header::after {
+        content: "▼"; /* Down arrow */
+        position: absolute;
+        left: 10px; /* Align to the left */
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 12px;
+        transition: transform 0.3s ease;
+    }
+    .accordion-header.active::after {
+        content: "▲"; /* Up arrow */
+    }
+    .accordion-content {
+        padding: 0 18px;
+        background-color: white;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease-out;
+    }
+    .country-name {
+        width: 20%;
+        float: left;
+        text-align: center;
+        padding-top: 10px;
+        font-weight: bold;
+    }
+    .accordion-item {
+        display: flex;
+        margin-bottom: 10px;
+    }
+    .accordion-item-content {
+        width: 80%; /* Ensure the content area takes 80% */
+    }
+    .clearfix::after {
+        content: "";
+        clear: both;
+        display: table;
+    }
+    .content-wrapper {
+        display: flex;
+        align-items: flex-start; /* Align items to the top */
+ 
+        padding: 10px;
+    }
+    .logo-section {
+        width: 20%; /* Logo occupies 20% of the space */
+        text-align: center; /* Center the logo */
+    }
+    .logo {
+        width: 150px; /* Fixed width for the logo */
+        height: 150px; /* Fixed height for the logo */
+        border-radius: 10px; /* Optional: Rounded corners */
+    }
+   
+    .details-section strong {
+        font-weight: bold; /* Bold titles */
+    }
+  
+</style>
+
+<!-- Header -->
+<div class="header-container my-5 container">
+    <h1>International Academic Partners</h1>
+</div>
+
+<!-- Map -->
+{% comment %} <div class="map-container">
+    <img src="https://via.placeholder.com/800x400" alt="World Map" class="map">
+</div> {% endcomment %}
+
+{% for continent, partnerships in continents.items %}
+
+<div class="clearfix">
+    
+    <div class="accordion-container">
+        <div class="header-container mt-4 ">
+            <h2>{{ continent }}</h2>
+        </div>
+        {% for partnership in partnerships %}
+       
+        <div class="accordion-item">
+            <div class="country-name">{{ partnership.country }}</div>
+            <div class="accordion-item-content">
+                <button class="accordion-header">{{ partnership.partner }}</button>
+                <div class="accordion-content">
+                    <div class="row align-items-center p-3">
+                        <!-- Logo Section -->
+                        <div class="col-12 col-md-3 text-center">
+                            {% if partnership.url %}
+                                <a href="{{ partnership.url }}" target="_blank" rel="noopener noreferrer">
+                            {% endif %}
+                                {% if partnership.logo %}
+                                    <img src="{{ partnership.logo.url }}" alt="{{ partnership.partner }} Logo" class="img-fluid rounded logo-hover" style="max-width: 150px;">
+                                {% else %}
+                                    <a href="{{ partnership.url }}" target="_blank" rel="noopener noreferrer">
+                                {% endif %}
+                            {% if partnership.url %}
+                                </a>
+                            {% endif %}
+                        </div>
+                        <!-- Details Section -->
+                        <div class="col-12 col-md-9">
+                            <p><strong>Country:</strong> <br>{{ partnership.country }}</p>
+                            <p><strong>Organization Type:</strong> <br>{{ partnership.type_of_organization }}</p>
+                            <p><strong>Status:</strong> <br>{{ partnership.status }}</p>
+                            <p><strong>Description:</strong><br> {{ partnership.description }}</p>
+                        </div>
+                    </div>
+                    
+                    {% if partnership.files.count >= 1 %}
+                    <!-- Uploaded Files Section -->
+                    <div class="my-2">
+        
+                        <ul class="list-group">
+                            {% for file in partnership.files.all %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                 
+                                    <span class="file-description">{{ file.description }}</span>
+                                </div>
+                                <div>
+                                    <a href="{{ file.file.url }}" target="_blank" class="btn btn-sm" style="background-color: #36599f; color:white;">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye" viewBox="0 0 16 16">
+                                            <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z"/>
+                                            <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0"/>
+                                        </svg>
+                                    </a>
+                                    <a href="{{ file.file.url }}" class="btn btn-sm btn-success" download>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-download" viewBox="0 0 16 16">
+                                            <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/>
+                                            <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/>
+                                        </svg>
+                                    </a>
+                                </div>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+
+
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endfor %}
+
+<script>
+    const accordionHeaders = document.querySelectorAll('.accordion-header');
+
+    accordionHeaders.forEach(header => {
+        header.addEventListener('click', function() {
+            this.classList.toggle('active');
+            const content = this.nextElementSibling;
+            if (content.style.maxHeight) {
+                content.style.maxHeight = null;
+            } else {
+                content.style.maxHeight = content.scrollHeight + 'px';
+            }
+        });
+    });
+</script>
+
+<!-- View Button -->
+{% comment %} <a href="#" target="_blank" class="btn btn-sm btn-primary">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye" viewBox="0 0 16 16">
+        <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z"/>
+        <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0"/>
+    </svg>
+</a>
+
+<!-- Download Button -->
+<a href="#" class="btn btn-sm btn-success" download>
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-download" viewBox="0 0 16 16">
+        <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/>
+        <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/>
+    </svg>
+</a> {% endcomment %}
+
+{% endblock content %}

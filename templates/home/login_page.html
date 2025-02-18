@@ -1,11 +1,31 @@
 {% extends "home/base.html" %}
 
 {% block content %}
-
+<style>
+    .card-header {
+        background-color: #36599f;
+        color: white;
+        border-top-left-radius: 10px !important;
+        border-top-right-radius: 10px !important;
+        overflow: hidden;
+    }
+    
+    .log-in-btn {
+        background-color: #36599f;
+        color: white;
+        border-color: #36599f;
+    }
+    .card-header h3 {
+        color: white;
+    }
+    .card {
+        border-radius: 10px;
+    }
+</style>
 <!-- Login Page -->
 <div class="container-fluid vh-100 d-flex align-items-center justify-content-center">
-    <div class="card shadow-lg mb-5" style="width: 400px; border: none; margin-bottom:100px">
-        <div class="card-header text-center bg-primary text-white">
+    <div class="card shadow-lg mb-5" style="width: 400px; margin-bottom:100px;">
+        <div class="card-header text-center">
             <h3 class="mb-0">Login</h3>
         </div>
         {% include "messages.html" %}
@@ -28,7 +48,7 @@
                     <a href="#" class="text-decoration-none">Forgot Password?</a>
                 </div>
                 <div class="text-center mt-4">
-                    <button type="submit" class="btn btn-primary w-100">Log In</button>
+                    <button type="submit" class="btn w-100 log-in-btn">Log In</button>
                 </div>
             </form>
         </div>
@@ -36,10 +56,3 @@
 </div>
 
 {% endblock content %}
-
-
-
-
-
-
-

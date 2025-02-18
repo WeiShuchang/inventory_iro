@@ -2,7 +2,6 @@
 {% load static %}
 {% block content %}
 
-
 <div class="page-wrapper">
     <!-- Page header -->
     <div class="page-header d-print-none">
@@ -14,45 +13,150 @@
                         Overview
                     </div>
                     <h2 class="page-title">
-                        Inventory Dashboard
+                        International Relations Office Management System
                     </h2>
                 </div>
             </div>
+            {% if request.session.error %}
+            <div class="alert alert-danger" id="alert-message">
+                {{ request.session.error }}
+            </div>
+            {% endif %}
+            {% if request.session.success %}
+            <div class="alert alert-success" role="alert" id="alert-message">
+                {{ request.session.success }}
+            </div>
+            {% endif %}
+            {% if messages %}
+            <div id="alert-message">
+                {% for message in messages %}
+                <div class="alert {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'success' %}alert-success{% endif %}" role="alert">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
         </div>
     </div>
-    {% if request.session.error %}
-<div class="alert alert-danger" id="alert-message">
-    {{ request.session.error }}
-</div>
-{% endif %}
-{% if request.session.success %}
-<div class="alert alert-success" role="alert" id="alert-message">
-    {{ request.session.success }}
-</div>
-{% endif %}
-{% if messages %}
-    <div id="alert-message">
-        {% for message in messages %}
-            <div class="alert {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'success' %}alert-success{% endif %}" role="alert">
-                {{ message }}
-            </div>
-        {% endfor %}
-    </div>
-{% endif %}
-
+  
 
     <!-- Page body -->
     <div class="page-body">
         <div class="container-xl">
             <div class="row row-cards">
                 <div class="col-sm-6 col-lg-3">
-                    
+                    <a href="{% url 'item_list' %}" class="text-decoration-none">
+                        <div class="card card-sm card-link-pop">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col-auto">
+                                        <span class="bg-blue text-white avatar">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-package" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                                <path d="M12 3l8 4.5v9l-8 4.5l-8 -4.5v-9l8 -4.5" />
+                                                <path d="M12 12l8 -4.5" />
+                                                <path d="M12 12v9" />
+                                                <path d="M12 12l-8 -4.5" />
+                                                <path d="M16 5.25l-8 4.5" />
+                                            </svg>
+                                        </span>
+                                    </div>
+                                    <div class="col">
+                                        <div class="font-weight-medium" style="font-size: 1.2rem; color:rgb(59, 108, 172);">
+                                            {{ item_count }} Items
+                                        </div>
+                                        <div class="text-muted">Total inventory count</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="col-sm-6 col-lg-3">
+                    <a href="{% url 'item_type_list' %}" class="text-decoration-none">
+                        <div class="card card-sm card-link-pop">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col-auto">
+                                        <span class="bg-teal text-white avatar">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-clipboard-list">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                                <path d="M9 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2h-2" />
+                                                <path d="M9 3m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v0a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z" />
+                                                <path d="M9 12l.01 0" />
+                                                <path d="M13 12l2 0" />
+                                                <path d="M9 16l.01 0" />
+                                                <path d="M13 16l2 0" />
+                                            </svg>
+                                        </span>
+                                    </div>
+                                    <div class="col">
+                                        <div class="font-weight-medium" style="font-size: 1.2rem; color: rgb(0, 128, 128);">
+                                            {{ item_type_count }} Item Types
+                                        </div>
+                                        <div class="text-muted">Total item categories</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="col-sm-6 col-lg-3">
+                    <a href="{% url 'partnership_list' %}" class="text-decoration-none">
+                        <div class="card card-sm card-link-pop">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col-auto">
+                                        <span class="bg-orange text-white avatar">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-heart-handshake">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                                <path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572" />
+                                                <path d="M12 6l-3.293 3.293a1 1 0 0 0 0 1.414l.543 .543c.69 .69 1.81 .69 2.5 0l1 -1a3.182 3.182 0 0 1 4.5 0l2.25 2.25" />
+                                                <path d="M12.5 15.5l2 2" />
+                                                <path d="M15 13l2 2" />
+                                            </svg>
+                                        </span>
+                                    </div>
+                                    <div class="col">
+                                        <div class="font-weight-medium" style="font-size: 1.2rem; color: rgb(230, 126, 34);">
+                                            {{ partnership_count }} Partnerships
+                                        </div>
+                                        <div class="text-muted">Total partnerships</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
                 </div>
 
-              
+                <div class="col-sm-6 col-lg-3">
+                    <a href="{% url 'year_list' %}" class="text-decoration-none">
+                    <div class="card card-sm card-link-pop">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                                    <span class="bg-green text-white avatar">
+                                        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-dollar"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M13 21h-7a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v3" /><path d="M16 3v4" /><path d="M8 3v4" /><path d="M4 11h12.5" /><path d="M21 15h-2.5a1.5 1.5 0 0 0 0 3h1a1.5 1.5 0 0 1 0 3h-2.5" /><path d="M19 21v1m0 -8v1" /></svg>
+                                    </span>
+                                </div>
+                                <div class="col">
+                                    <div class="font-weight-medium" style="font-size: 1.2rem; color: rgb(39, 174, 96);">
+                                        {{ ppmp_per_year_count }} Expenditures 
+                                    </div>
+                                    <div class="text-muted">Years with PPMPs</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    </a>
+                </div>
             </div>
         </div>
     </div>
+
+ 
 
     <div class="modal modal-blur fade" id="modal-report" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
@@ -77,9 +181,4 @@
     </div>
 </div>
 
-
 {% endblock content %}
-
-
-
-

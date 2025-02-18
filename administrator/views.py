@@ -3,7 +3,7 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .forms import ItemForm, ItemTypeForm, ItemImageForm
+from .forms import ItemForm, ItemTypeForm, ItemImageForm, PartnershipForm
 from reportlab.lib.pagesizes import legal, landscape
 from django.views.decorators.csrf import csrf_exempt
 from openpyxl.utils import get_column_letter
@@ -27,10 +27,35 @@ from django.http import JsonResponse
 import shutil
 import sqlite3
 import os
-
+import json
 
 def administrator_dashboard(request):
-    return render (request, "administrator/administrator_dashboard.html")
+    from django.db.models import Count
+
+    # Get counts
+    item_count = Item.objects.filter(is_archived=False).count()
+    partnership_count = Partnership.objects.filter(is_removed_from_list=False).count()
+    item_type_count = ItemType.objects.count()
+
+    # Count the number of PPMPs per year
+    ppmp_per_year_count = Expenditure.objects.values("year").annotate(count=Count("id")).count()
+
+    # Fetch partnerships (only active ones)
+    partnerships = Partnership.objects.filter(is_removed_from_list=False).values("country", "continent", "partner")
+
+    # Convert to JSON for JavaScript
+    partnerships_json = json.dumps(list(partnerships))
+
+    context = {
+        "item_count": item_count,
+        "partnership_count": partnership_count,
+        "item_type_count": item_type_count,
+        "partnerships_json": partnerships_json,  # Send to template
+        "ppmp_per_year_count": ppmp_per_year_count,  # Send PPMP count
+    }
+
+    return render(request, "administrator/administrator_dashboard.html", context)
+
 
 def item_list(request):
     if request.method == 'POST':
@@ -38,14 +63,13 @@ def item_list(request):
         image_form = ItemImageForm(request.POST, request.FILES)
         if form.is_valid():
             try:
-                item = form.save()  # Save the item
-                # Handle multiple images
+                item = form.save()
                 images = request.FILES.getlist('images')
                 for image in images:
                     ItemImage.objects.create(item=item, image=image)
                 messages.success(request, 'Item added successfully!')
                 return redirect('item_list')
-            except IntegrityError:  # Catch IntegrityError if it occurs
+            except IntegrityError:
                 messages.error(request, 'An item with this property number already exists.')
         else:
             messages.error(request, 'There was an error adding the item. Please check the form fields.')
@@ -54,15 +78,22 @@ def item_list(request):
         image_form = ItemImageForm()
 
     query = request.GET.get('q', '')
-    item_type = request.GET.get('item_type', '')
-    items = Item.objects.filter(is_archived=False).order_by("-id")
+    item_type_id = request.GET.get('item_type', '')
 
+    # Fetch items based on search and filter
+    items = Item.objects.filter(is_archived=False).order_by("-id")
     if query:
         items = items.filter(property_number__icontains=query)
+    if item_type_id:
+        items = items.filter(item_type__id=item_type_id)
 
-    if item_type:
-        items = items.filter(item_type__id=item_type)
+    # Get the item type name
+    item_type_name = ""
+    if item_type_id:
+        item_type = ItemType.objects.filter(id=item_type_id).first()
+        item_type_name = item_type.name if item_type else ""
 
+    # Pagination
     paginator = Paginator(items, 8)
     page_number = request.GET.get('page')
     page_items = paginator.get_page(page_number)
@@ -74,13 +105,24 @@ def item_list(request):
         'image_form': image_form,
         'item_types': item_types,
         'query': query,
-        'item_type': item_type,
-        'export_url': reverse('export_items_to_pdf') + f'?q={query}&item_type={item_type}',
+        'item_type_name': item_type_name,  # Pass the item type name
+        'item_type_id': item_type_id,
+        'export_url': reverse('export_items_to_pdf') + f'?q={query}&item_type={item_type_id}',
     }
     return render(request, 'administrator/supply_property_inventory.html', context)
 
+
 def item_type_list(request):
-    itemtypes = ItemType.objects.all().order_by('name')  # Fetch all item types
+    query = request.GET.get('q', '')  # Get search query
+    itemtypes_list = ItemType.objects.all().order_by('name')
+
+    if query:
+        itemtypes_list = itemtypes_list.filter(name__icontains=query)  # Filter by search query
+
+    # Pagination
+    paginator = Paginator(itemtypes_list, 10)  # Show 10 items per page
+    page_number = request.GET.get('page')
+    itemtypes = paginator.get_page(page_number)
 
     if request.method == 'POST':
         if 'id' in request.POST:
@@ -88,39 +130,36 @@ def item_type_list(request):
             itemtype = ItemType.objects.get(id=request.POST['id'])
             form = ItemTypeForm(request.POST, request.FILES, instance=itemtype)
             if form.is_valid():
-                # Check for duplicate entry
-                name = form.cleaned_data.get('name')  # Replace 'name' with your unique field
+                name = form.cleaned_data.get('name')  # Unique field
                 if ItemType.objects.filter(name=name).exclude(id=itemtype.id).exists():
                     messages.error(request, 'An item type with this name already exists.')
                 else:
                     form.save()
                     messages.success(request, 'Item type updated successfully!')
-                    return redirect('item_type_list')  # Redirect after successful update
+                    return redirect('item_type_list')
             else:
                 messages.error(request, 'Failed to update item type. Please try again.')
         else:
             # Adding a new item type
             form = ItemTypeForm(request.POST, request.FILES)
             if form.is_valid():
-                # Check for duplicate entry
-                name = form.cleaned_data.get('name')  # Replace 'name' with your unique field
+                name = form.cleaned_data.get('name')
                 if ItemType.objects.filter(name=name).exists():
                     messages.error(request, 'An item type with this name already exists.')
                 else:
                     form.save()
                     messages.success(request, 'Item type added successfully!')
-                    return redirect('item_type_list')  # Redirect after adding
+                    return redirect('item_type_list')
             else:
                 messages.error(request, 'Failed to add item type. Please try again.')
-
     else:
-        form = ItemTypeForm()  # Create an empty form for the modal
+        form = ItemTypeForm()
 
     return render(request, 'administrator/item_type_list.html', {
         'itemtypes': itemtypes,
         'form': form,
+        'query': query,  # Pass query to template
     })
-
 
 def edit_item_type(request, pk):
     item_type = get_object_or_404(ItemType, pk=pk)
@@ -139,15 +178,16 @@ def edit_item_type(request, pk):
 
 def delete_item_type(request, pk):
     item_type = get_object_or_404(ItemType, pk=pk)
-    try:
-        if request.method == "POST":
+    if request.method == "POST":
+        try:
             item_type.delete()
             messages.success(request, f"Item type '{item_type.name}' has been deleted successfully.")
-            return redirect('item_type_list')  # Replace with the name of your list view's URL
-    except IntegrityError:
-        messages.error(request, f"Cannot delete '{item_type.name}' because there are related records.")
-        return redirect('item_type_list')  # Return to the list if there's an error
-    return redirect('item_type_list')  # Ensure redirection if the method is not POST
+        except IntegrityError:
+            messages.error(request, f"Cannot delete '{item_type.name}' because there are related records.")
+        return redirect('item_type_list')  # Redirect to the item type list page
+
+    # If the request is not POST, redirect back
+    return redirect('item_type_list')
 
 def item_detail(request, id):
     item = get_object_or_404(Item, id=id)
@@ -559,6 +599,7 @@ def partnership_list(request):
         try:
             # Get the data from the POST request
             partner = request.POST.get('partner')
+            url = request.POST.get('url')
             country = request.POST.get('country')
             continent = request.POST.get('continent')
             type_of_organization = request.POST.get('type_of_organization')
@@ -570,6 +611,7 @@ def partnership_list(request):
             # Create the partnership object
             partnership = Partnership.objects.create(
                 partner=partner,
+                url=url,
                 country=country,
                 continent=continent,
                 type_of_organization=type_of_organization,
@@ -680,7 +722,7 @@ def upload_file_to_partnership(request, partnership_id):
         else:
             messages.error(request, "File is required.")
 
-    return redirect('partnership_detail', partnership_id=partnership_id)
+    return redirect('partnership_list')  # Redirecting to partnership list
 
 
 @csrf_exempt
@@ -821,3 +863,46 @@ def year_detail(request, year_id):
     }
 
     return render(request, "administrator/year_detail.html", context)
+
+def remove_partnership(request, partnership_id):
+    partnership = get_object_or_404(Partnership, id=partnership_id)
+    try:
+        partnership.is_removed_from_list = True
+        partnership.save()
+        messages.success(request, 'Partnership has been successfully removed from the list.')
+    except Exception as e:
+        messages.error(request, f'An error occurred while removing the partnership: {str(e)}')
+    
+    return redirect(reverse('partnership_list'))
+
+def removed_partnerships_view(request):
+    # Filter partnerships that are removed from the list
+    removed_partnerships = Partnership.objects.filter(is_removed_from_list=True)
+
+    return render(request, 'administrator/removed_partnerships.html', {
+        'removed_partnerships': removed_partnerships,
+    })
+
+def edit_partnership(request, partnership_id):
+    partnership = get_object_or_404(Partnership, id=partnership_id)
+
+    if request.method == 'POST':
+        form = PartnershipForm(request.POST, request.FILES, instance=partnership)
+        if form.is_valid():
+            form.save()
+            return redirect(request.META.get('HTTP_REFERER', 'home')) 
+
+    return redirect(request.META.get('HTTP_REFERER', 'home'))  
+
+@csrf_exempt
+def delete_expenditure(request):
+    if request.method == "POST":
+        expenditure_id = request.POST.get("id")
+        try:
+            expenditure = Expenditure.objects.get(id=expenditure_id)
+            expenditure.delete()
+            return JsonResponse({"success": True})
+        except Expenditure.DoesNotExist:
+            return JsonResponse({"success": False, "error": "Expenditure not found."})
+    
+    return JsonResponse({"success": False, "error": "Invalid request."})

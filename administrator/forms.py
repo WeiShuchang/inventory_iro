@@ -1,5 +1,5 @@
 from django import forms
-from .models import Item, ItemType, ItemImage
+from .models import Item, ItemType, ItemImage, Partnership
 
 class ItemForm(forms.ModelForm):
     class Meta:
@@ -42,3 +42,10 @@ class ItemImageForm(forms.ModelForm):
     class Meta:
         model = ItemImage
         fields = ['image', 'caption']  # Include any other fields as needed
+
+class PartnershipForm(forms.ModelForm):
+    url = forms.URLField(required=False)  # Make URL field optional
+
+    class Meta:
+        model = Partnership
+        fields = ['continent', 'country', 'partner', 'type_of_organization', 'description', 'logo', 'status', 'url']

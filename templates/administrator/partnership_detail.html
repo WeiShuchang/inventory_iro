@@ -4,11 +4,12 @@
 
 <div class="container mt-5">
     <div class="col d-flex align-items-center mb-2">
-        <a href="javascript:history.back()" class="btn btn-outline" aria-label="Go Back">
+        <a id="backButton" href="/administrator/partnerships" class="btn btn-outline" aria-label="Go Back">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left-short" viewBox="0 0 16 16">
                 <path fill-rule="evenodd" d="M12 8a.5.5 0 0 1-.5.5H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5a.5.5 0 0 1 .5.5"/>
             </svg>
         </a>
+        
         <h1 class="page-title mb-0 ms-2">Partnership Details</h1>
     </div>
     {% if request.session.error %}
@@ -33,60 +34,7 @@
   
     
  
-    <div class="card">
-        <div class="card-header py-3 d-flex justify-content-between align-items-center">
-            <h2 class="mb-0">{{ partnership.partner }}</h2>
-            <div>
-                <!-- Edit Button -->
-                <a href="javascript:void(0);" class="btn btn-primary btn-sm me-2" data-bs-toggle="modal" data-bs-target="#editPartnershipModal">
-                    Edit
-                </a>
-                <!-- Upload File Button -->
-                <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#uploadFileModal">
-                    Upload File
-                </button>
-            </div>
-        </div>
-        
-        <div class="card-body d-flex">
-            <!-- Logo Section (Left side) -->
-            <div class="mr-4" style="flex-shrink: 0; margin-right: 30px;">
-                {% if partnership.logo %}
-                    <img src="{{ partnership.logo.url }}" alt="{{ partnership.partner }} logo" class="img-fluid" style="width: 150px; height: 150px; object-fit: cover;">
-                {% else %}
-                    <p>No logo available</p>
-                {% endif %}
-            </div>
-       
-            <!-- Details Section (Right side) -->
-            <div class="flex-grow-1">
-                <table class="table table-bordered">
-                    <tbody>
-                        <tr>
-                            <th>Country</th>
-                            <td>{{ partnership.country }}</td>
-                        </tr>
-                        <tr>
-                            <th>Continent</th>
-                            <td>{{ partnership.continent }}</td>
-                        </tr>
-                        <tr>
-                            <th>Type of Organization</th>
-                            <td>{{ partnership.type_of_organization }}</td>
-                        </tr>
-                        <tr>
-                            <th>Description</th>
-                            <td>{{ partnership.description }}</td>
-                        </tr>
-                        <tr>
-                            <th>Status</th>
-                            <td>{{ partnership.status }}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
+    
 
     <div class="mt-5">
         <h3>Uploaded Files</h3>
@@ -271,11 +219,39 @@
     </div>
 </div>
 
+<!-- Confirmation Modal -->
+<div class="modal fade" id="removeConfirmationModal" tabindex="-1" aria-labelledby="removeConfirmationModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="removeConfirmationModalLabel">Confirm Removal</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to remove this partnership from the list?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <a href="{% url 'remove_partnership' partnership.id %}" class="btn btn-danger">Remove</a>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         let currentForm = null; // Track the form being submitted
         let fileId = null; // Track the file ID being deleted
+        const backButton = document.getElementById('backButton');
+
+    // Extract the page number from the URL query parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const page = urlParams.get('page') || 1; // Default to page 1 if no page parameter is found
+
+        // Update the back button's href with the correct page number
+        if (backButton) {
+            backButton.href = `/administrator/partnerships?page=${page}`;
+        }
 
         // Open the confirmation modal for delete
         document.querySelectorAll(".open-confirm-modal").forEach((button) => {
