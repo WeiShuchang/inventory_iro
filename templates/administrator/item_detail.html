@@ -78,18 +78,25 @@
                     <div class="d-flex justify-content-center">
                         <!-- Edit Image Button -->
                         <button type="button" class="btn btn-sm btn-warning mt-3" data-bs-toggle="modal" data-bs-target="#editImageModal" {% if not item.images.all %}disabled{% endif %}>
-                            Edit Image
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+                                <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
+                              </svg>
                         </button>
                     
                         
                         <!-- Delete Image Button -->
                         <button type="button" class="btn btn-sm btn-danger mt-3 mx-2" data-bs-toggle="modal" data-bs-target="#deleteImageModal" {% if not item.images.all %}disabled{% endif %}>
-                            Delete Image
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
+                                <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+                              </svg>
                         </button>
 
                         <!-- Add Images Button -->
                         <button type="button" class="btn btn-sm btn-primary mt-3 " data-bs-toggle="modal" data-bs-target="#uploadImageModal">
-                            Add Images
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
+                                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/>
+                              </svg>
                         </button>
                     
                     </div>
@@ -99,54 +106,53 @@
             </div>
             <!-- Sample Data Section on Right -->
             <div class="col-md-9">
-                <div class="card">
-                    <div class="card-body">
-                        
+                <div class="card shadow-sm">
+                    <div class="card-body p-2">
                         <form method="POST" action="{% url 'item_edit' item.id %}">
                             {% csrf_token %}
+                            
                             <div class="row">
-                                <div class="form-group row mb-2">
-                                    <label for="sector_office_division_college" class="col-sm-4 col-form-label">Sector/Office/Division/College:</label>
+                                <div class="form-group row mb-1">
+                                    <label for="sector_office_division_college" class="col-sm-4 col-form-label col-form-label-sm">Sector/Office/Division/College:</label>
                                     <div class="col-sm-8">
-                                        <input type="text" class="form-control" id="sector_office_division_college" name="sector_office_division_college" value="{{ item.sector_office_division_college }}">
+                                        <input type="text" class="form-control form-control-sm" id="sector_office_division_college" name="sector_office_division_college" value="{{ item.sector_office_division_college }}">
                                     </div>
                                 </div>
-                
-                                <div class="form-group row mb-2">
-                                    <label for="operating_unit_project" class="col-sm-4 col-form-label">Operating Unit/Project:</label>
+            
+                                <div class="form-group row mb-1">
+                                    <label for="operating_unit_project" class="col-sm-4 col-form-label col-form-label-sm">Operating Unit/Project:</label>
                                     <div class="col-sm-8">
-                                        <input type="text" class="form-control" id="operating_unit_project" name="operating_unit_project" value="{{ item.operating_unit_project }}">
+                                        <input type="text" class="form-control form-control-sm" id="operating_unit_project" name="operating_unit_project" value="{{ item.operating_unit_project }}">
                                     </div>
                                 </div>
                             </div>
-                       
             
-                            <div class="form-group row mb-2">
-                                <label for="property_number" class="col-sm-2 col-form-label">Property Number:</label>
-                                <div class="col-sm-4">
-                                    <input type="text" class="form-control" id="property_number" name="property_number" value="{{ item.property_number }}">
+                            <div class="form-group row mb-1">
+                                <label for="property_number" class="col-sm-3 col-form-label col-form-label-sm">Property Number:</label>
+                                <div class="col-sm-3">
+                                    <input type="text" class="form-control form-control-sm" id="property_number" name="property_number" value="{{ item.property_number }}">
                                 </div>
-                           
-                                <label for="responsible_person" class="col-sm-2 col-form-label">Responsible Person:</label>
-                                <div class="col-sm-4">
-                                    <input type="text" class="form-control" id="responsible_person" name="responsible_person" value="{{ item.responsible_person }}">
+            
+                                <label for="responsible_person" class="col-sm-3 col-form-label col-form-label-sm">Responsible Person:</label>
+                                <div class="col-sm-3">
+                                    <input type="text" class="form-control form-control-sm" id="responsible_person" name="responsible_person" value="{{ item.responsible_person }}">
                                 </div>
                             </div>
             
-                            <div class="form-group row mb-2">
-                                <label for="quantity" class="col-sm-1 col-form-label">Quantity:</label>
+                            <div class="form-group row mb-1">
+                                <label for="quantity" class="col-sm-3 col-form-label col-form-label-sm">Quantity:</label>
                                 <div class="col-sm-3">
-                                    <input type="number" class="form-control" id="quantity" name="quantity" value="{{ item.quantity }}">
+                                    <input type="number" class="form-control form-control-sm" id="quantity" name="quantity" value="{{ item.quantity }}">
                                 </div>
-                           
-                                <label for="unit" class="col-sm-1 col-form-label">Unit:</label>
-                                <div class="col-sm-3">
-                                    <input type="text" class="form-control" id="unit" name="unit" value="{{ item.unit }}">
+            
+                                <label for="unit" class="col-sm-3 col-form-label col-form-label-sm">Unit:</label>
+                                <div class="col-sm-3 mb-1">
+                                    <input type="text" class="form-control form-control-sm" id="unit" name="unit" value="{{ item.unit }}">
                                 </div>
-
-                                <label for="item_type" class="col-sm-1 col-form-label">Type:</label>
+            
+                                <label for="item_type" class="col-sm-3 col-form-label col-form-label-sm">Type:</label>
                                 <div class="col-sm-3">
-                                    <select class="form-control" id="item_type" name="item_type">
+                                    <select class="form-control form-control-sm" id="item_type" name="item_type">
                                         {% for type in item_types %}
                                             <option value="{{ type.id }}" {% if item.item_type.id == type.id %}selected{% endif %}>{{ type.name }}</option>
                                         {% endfor %}
@@ -154,80 +160,74 @@
                                 </div>
                             </div>
             
-                            <div class="form-group row mb-2">
-                                <label for="description" class="col-form-label">Description:</label>
-                                <div class="">
-                                    <textarea class="form-control" id="description" name="description" style="height: 130px;">{{ item.description }}</textarea>
-                                </div>
-                            </div>
-                            
-            
-                            <div class="form-group row mb-2">
-                                <label for="date_acquired" class="col-sm-2 col-form-label">Date Acquired:</label>
-                                <div class="col-sm-5">
-                                    <input type="date" class="form-control" id="date_acquired" name="date_acquired" value="{{ item.date_acquired|date:'Y-m-d' }}">
-                                </div>
-                      
-                                <label for="fund" class="col-sm-1 col-form-label">Fund:</label>
-                                <div class="col-sm-4">
-                                    <input type="text" class="form-control" id="fund" name="fund" value="{{ item.fund }}">
+                            <div class="form-group row mb-1">
+                                <label for="description" class="col-form-label col-form-label-sm">Description:</label>
+                                <div class="col-sm-12">
+                                    <textarea class="form-control form-control-sm" id="description" name="description" style="height: 100px;">{{ item.description }}</textarea>
                                 </div>
                             </div>
             
-                            <div class="form-group row mb-2">
-                                <label for="ppe_class" class="col-sm-2 col-form-label">PPE Class:</label>
-                                <div class="col-sm-4">
-                                    <input type="text" class="form-control" id="ppe_class" name="ppe_class" value="{{ item.ppe_class }}">
-                                </div>
-                            
-                                <label for="estimated_useful_life" class="col-sm-3 col-form-label">Estimated Useful Life:</label>
+                            <div class="form-group row mb-1">
+                                <label for="date_acquired" class="col-sm-3 col-form-label col-form-label-sm">Date Acquired:</label>
                                 <div class="col-sm-3">
-                                    <input type="number" class="form-control" id="estimated_useful_life" name="estimated_useful_life" value="{{ item.estimated_useful_life }}">
+                                    <input type="date" class="form-control form-control-sm" id="date_acquired" name="date_acquired" value="{{ item.date_acquired|date:'Y-m-d' }}">
+                                </div>
+            
+                                <label for="fund" class="col-sm-3 col-form-label col-form-label-sm">Fund:</label>
+                                <div class="col-sm-3">
+                                    <input type="text" class="form-control form-control-sm" id="fund" name="fund" value="{{ item.fund }}">
                                 </div>
                             </div>
             
-                            <div class="form-group row mb-2">
-                                <label for="unit_price" class="col-sm-2 col-form-label">Unit Price:</label>
-                                <div class="col-sm-4">
-                                    <input type="number" class="form-control" id="unit_price" name="unit_price" value="{{ item.unit_price }}" step="0.01">
+                            <div class="form-group row mb-1">
+                                <label for="ppe_class" class="col-sm-3 col-form-label col-form-label-sm">PPE Class:</label>
+                                <div class="col-sm-3">
+                                    <input type="text" class="form-control form-control-sm" id="ppe_class" name="ppe_class" value="{{ item.ppe_class }}">
                                 </div>
-                            
-                                <label for="total_amount" class="col-sm-2 col-form-label">Total Amount:</label>
-                                <div class="col-sm-4">
-                                    <input type="number" class="form-control" id="total_amount" name="total_amount" value="{{ item.total_amount }}" step="0.01">
-                                </div>
-                            </div>
-                            <div class="rm-group row mb-2">
-                                <label class=" col-form-label">Remarks</label>
-                                <div class="">
-                                    <textarea class="form-control" name="remarks" placeholder="Enter remarks" rows="4">{{ request.POST.remarks|default:item.remarks }}</textarea>
-                                </div>
-                            </div>
-                            
             
-                            <div class="form-group row mb-2">
-                                <div class="col-sm-12 d-flex gap-2">
-                                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                                <label for="estimated_useful_life" class="col-sm-3 col-form-label col-form-label-sm">Estimated Useful Life:</label>
+                                <div class="col-sm-3">
+                                    <input type="number" class="form-control form-control-sm" id="estimated_useful_life" name="estimated_useful_life" value="{{ item.estimated_useful_life }}">
+                                </div>
+                            </div>
+            
+                            <div class="form-group row mb-1">
+                                <label for="unit_price" class="col-sm-3 col-form-label col-form-label-sm">Unit Price:</label>
+                                <div class="col-sm-3">
+                                    <input type="number" class="form-control form-control-sm" id="unit_price" name="unit_price" value="{{ item.unit_price }}" step="0.01">
+                                </div>
+            
+                                <label for="total_amount" class="col-sm-3 col-form-label col-form-label-sm">Total Amount:</label>
+                                <div class="col-sm-3">
+                                    <input type="number" class="form-control form-control-sm" id="total_amount" name="total_amount" value="{{ item.total_amount }}" step="0.01">
+                                </div>
+                            </div>
+            
+                            <div class="form-group row mb-1">
+                                <label class="col-form-label col-form-label-sm">Remarks</label>
+                                <div class="col-sm-12">
+                                    <textarea class="form-control form-control-sm" name="remarks" placeholder="Enter remarks" rows="3">{{ request.POST.remarks|default:item.remarks }}</textarea>
+                                </div>
+                            </div>
+            
+                            <div class="form-group row mt-2">
+                                <div class="col-sm-12 d-flex align-items-center gap-1">
+                                    <button type="submit" class="btn btn-primary btn-sm">Save Changes</button>
                                     
                                     {% if item.is_archived %}
-                                        <!-- Button to Unarchive -->
-                                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#unarchiveModal">
-                                            Unarchive Item
-                                        </button>
+                                        <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#unarchiveModal">Unarchive Item</button>
                                     {% else %}
-                                        <!-- Button to Archive -->
-                                        <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#archiveModal">
-                                            Archive Item
-                                        </button>
+                                        <button type="button" class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#archiveModal">Archive Item</button>
                                     {% endif %}
                                 </div>
                             </div>
-                            
-
+            
                         </form>
                     </div>
                 </div>
             </div>
+            
+            
             
        <!-- Unarchive Modal -->
             <div class="modal fade" id="unarchiveModal" tabindex="-1" aria-labelledby="unarchiveModalLabel" aria-hidden="true">
@@ -253,6 +253,7 @@
                     
         </div>
     </div>
+    
 </div>
 
 <!-- Modal for Editing Image -->

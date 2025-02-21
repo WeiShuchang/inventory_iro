@@ -60,6 +60,9 @@ def partnership_list(request):
     # Fetch all partnerships that are not removed from the list
     partnerships = Partnership.objects.filter(is_removed_from_list=False).order_by("continent", "country")
 
+    # Filter active partnerships for marquee
+    active_partnerships = partnerships.filter(status="Active").exclude(logo="")
+
     # Organize partnerships by continent
     continents = {}
     for partnership in partnerships:
@@ -67,5 +70,9 @@ def partnership_list(request):
             continents[partnership.continent] = []
         continents[partnership.continent].append(partnership)
 
-    # Pass the grouped partnerships to the template
-    return render(request, "home/international_partners_list.html", {'continents': continents})
+    # Pass the grouped partnerships and active partnerships to the template
+    return render(
+        request, 
+        "home/international_partners_list.html", 
+        {'continents': continents, 'active_partnerships': active_partnerships}
+    )

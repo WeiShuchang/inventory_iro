@@ -106,7 +106,7 @@ class Expenditure(models.Model):
 
     classification = models.CharField(max_length=200, choices=CLASSIFICATION_CHOICES)
     expenditure_type = models.CharField(max_length=200)
-    item_number = models.PositiveIntegerField()  # Logic for unique numbering in the model's save() method
+    item_number = models.PositiveIntegerField()  # Logic for    unique numbering in the model's save() method
     description = models.TextField()
     mode_of_procurement = models.CharField(max_length=200)
 

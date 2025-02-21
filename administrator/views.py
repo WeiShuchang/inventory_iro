@@ -24,38 +24,86 @@ from django.urls import reverse
 from openpyxl import Workbook
 from datetime import datetime
 from django.http import JsonResponse
+from django.db.models import Count
 import shutil
 import sqlite3
 import os
 import json
 
 def administrator_dashboard(request):
-    from django.db.models import Count
-
-    # Get counts
     item_count = Item.objects.filter(is_archived=False).count()
     partnership_count = Partnership.objects.filter(is_removed_from_list=False).count()
     item_type_count = ItemType.objects.count()
-
-    # Count the number of PPMPs per year
     ppmp_per_year_count = Expenditure.objects.values("year").annotate(count=Count("id")).count()
 
-    # Fetch partnerships (only active ones)
-    partnerships = Partnership.objects.filter(is_removed_from_list=False).values("country", "continent", "partner")
+    # Get partnership status distribution
+    status_distribution = (
+        Partnership.objects
+        .filter(is_removed_from_list=False)
+        .values("status")
+        .annotate(count=Count("id"))
+    )
 
-    # Convert to JSON for JavaScript
-    partnerships_json = json.dumps(list(partnerships))
+    # Define colors for each status
+    status_colors = {
+        "Active": "rgba(76, 175, 80, 0.9)",  # Green
+        "Pending": "rgba(255, 165, 0, 0.9)",  # Amber
+        "Completed": "rgba(33, 150, 243, 0.9)",  # Blue
+        "Inactive": "rgba(244, 67, 54, 0.9)"  # Red
+    }
 
+    # Extract labels and counts for partnership status
+    status_labels = [entry["status"] for entry in status_distribution]
+    status_counts = [entry["count"] for entry in status_distribution]
+    status_colors_filtered = {label: status_colors.get(label, "rgba(200, 200, 200, 0.7)") for label in status_labels}
+
+    # Category distribution for items
+    category_distribution = (
+        Item.objects.filter(is_archived=False)
+        .values("unit_price")
+        .annotate(count=Count("id"))
+    )
+
+    # Process category counts
+    category_counts = {
+        "Property, Plant and Equipment": 0,
+        "High Value Semi-Expendable": 0,
+        "Low Value Semi-Expendable": 0
+    }
+
+    for entry in category_distribution:
+        unit_price = entry["unit_price"]
+        count = entry["count"]
+
+        if unit_price >= 50000:
+            category_counts["Property, Plant and Equipment"] += count
+        elif 5000 < unit_price < 50000:
+            category_counts["High Value Semi-Expendable"] += count
+        else:
+            category_counts["Low Value Semi-Expendable"] += count
+
+    # Define colors for each category
+    category_colors = {
+        "Property, Plant and Equipment": "rgba(33, 150, 243, 0.9)",  # Blue
+        "High Value Semi-Expendable": "rgba(255, 165, 0, 0.9)",  # Amber
+        "Low Value Semi-Expendable": "rgba(76, 175, 80, 0.9)",  # Green
+    }
+
+    # Prepare context for rendering
     context = {
         "item_count": item_count,
         "partnership_count": partnership_count,
         "item_type_count": item_type_count,
-        "partnerships_json": partnerships_json,  # Send to template
-        "ppmp_per_year_count": ppmp_per_year_count,  # Send PPMP count
+        "ppmp_per_year_count": ppmp_per_year_count,
+        "status_labels": json.dumps(status_labels),
+        "status_counts": json.dumps(status_counts),
+        "status_colors_json": json.dumps(status_colors_filtered),
+        "category_labels": json.dumps(list(category_counts.keys())),
+        "category_counts": json.dumps(list(category_counts.values())),
+        "category_colors_json": json.dumps(category_colors),
     }
 
     return render(request, "administrator/administrator_dashboard.html", context)
-
 
 def item_list(request):
     if request.method == 'POST':
@@ -191,7 +239,7 @@ def delete_item_type(request, pk):
 
 def item_detail(request, id):
     item = get_object_or_404(Item, id=id)
-    item_types = ItemType.objects.all()  # Fetch all item types
+    item_types = ItemType.objects.all().order_by("name")  # Fetch all item types
     return render(request, 'administrator/item_detail.html', {'item': item, 'item_types': item_types})
 def item_edit(request, id):
     item = get_object_or_404(Item, id=id)
