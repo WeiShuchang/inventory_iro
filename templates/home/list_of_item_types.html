@@ -34,14 +34,22 @@
     padding: 10px; /* Optional: Adjust padding for smaller cards */
   }
 </style>
+<div class="container-fluid bg-primary py-5  page-header">
+  <div class="container py-5">
+      <div class="row justify-content-center">
+          <div class="col-lg-10 text-center">
+              <h4 class="display-5 text-white animated slideInDown">Item Types</h4>
+          </div>
+      </div>
+  </div>
+</div>
+
 <div class="container-xxl py-5">
     <div class="container">
-        <div class="">
-            <h1 class="mb-5">Item Types</h1>
-        </div>
+       
         <div class="row g-3">
             {% for item_type in item_types %}
-            <div class="col-lg-2 col-md-3 col-sm-4 col-6">
+            <div class="col-lg-2 col-md-3 col-sm-3 col-6">
                 <div class="card h-100 text-center">
                     <a href="{% url 'item_type_detail' item_type.pk %}">
                         <div style="height: 120px; overflow: hidden;">

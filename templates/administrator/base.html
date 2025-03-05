@@ -49,10 +49,20 @@
                       Inventory
                   </a>
                   <ul class="dropdown-menu" aria-labelledby="inventoryDropdown">
-                      <li><a class="dropdown-item" href="{% url 'item_list' %}">Full Inventory</a></li>
-                      <li><a class="dropdown-item" href="{% url 'item_type_list' %}">Item Types</a></li>
+                      <li><a class="dropdown-item" href="{% url 'item_list' %}">All Items</a></li>
+                      <li><a class="dropdown-item" href="{% url 'item_type_list' %}">Types of Items</a></li>
                       <li><a class="dropdown-item" href="{% url 'archived_items' %}">Archived Items</a></li>
                   </ul>
+              </li>
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="databaseDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    Bookings
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="databaseDropdown">
+                    <li><a class="dropdown-item" href="{% url 'pending_reservations' %}">Pending </a></li>
+                    <li><a class="dropdown-item" href="">Confirmed</a></li>
+                    <li><a class="dropdown-item" href="">Cancelled</a></li>
+                </ul>
               </li>
               <li class="nav-item">
                   <a href="{% url 'year_list' %}" class="nav-link">Expenditures</a>
@@ -60,12 +70,15 @@
           </ul>
 
           <ul class="navbar-nav ms-auto">
+            
+
               <li class="nav-item dropdown">
                   <a class="nav-link dropdown-toggle" href="#" id="databaseDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                       Partnerships
                   </a>
                   <ul class="dropdown-menu" aria-labelledby="databaseDropdown">
                       <li><a class="dropdown-item" href="{% url 'partnership_list' %}">List of Partnerships</a></li>
+                      <li><a class="dropdown-item" href="{% url 'visitor_list' %}">List of Visitors</a></li>
                       <li><a class="dropdown-item" href="{% url 'removed_partnerships' %}">Removed from List</a></li>
                   </ul>
               </li>

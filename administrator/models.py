@@ -1,4 +1,5 @@
 from django.db import models
+import pycountry
 
 class ItemType(models.Model):
     name = models.CharField(max_length=100)
@@ -148,3 +149,69 @@ class Expenditure(models.Model):
 
     def __str__(self):
         return f"{self.year.year} - {self.classification} - {self.expenditure_type} - Item {self.item_number}"
+
+class InternationalVisitor(models.Model):
+    COUNTRY_CHOICES = [(country.name, country.name) for country in pycountry.countries]
+
+    SECTOR_CHOICES = [
+        ('Research and Extension', 'Research and Extension'),
+        ('Administration and Finance', 'Administration and Finance'),
+        ('Academic', 'Academic'),
+    ]
+
+    CENTER_CHOICES = [
+        ('Center A', 'Center A'),
+        ('Center B', 'Center B'),
+        ('Center C', 'Center C'),
+    ]
+
+    OFFICE_CHOICES = [
+        ('Office 1', 'Office 1'),
+        ('Office 2', 'Office 2'),
+        ('Office 3', 'Office 3'),
+    ]
+
+    PURPOSE_CHOICES = [
+        ('Visit', 'Visit'),
+        ('Study Tour', 'Study Tour'),
+        ('Interview', 'Interview'),
+    ]
+
+    YEAR_CHOICES = [(year, str(year)) for year in range(2000, 2031)]  # Years from 2000 to 2030
+
+    country = models.CharField(max_length=100, choices=COUNTRY_CHOICES)
+    name = models.CharField(max_length=255)
+    year = models.IntegerField(choices=YEAR_CHOICES)
+    sector_visited = models.ManyToManyField('Sector', related_name="sectors", null=True, blank=True)
+    center_unit = models.ManyToManyField('Center', related_name="centers", null=True, blank=True)
+    office_college = models.ManyToManyField('Office', related_name="offices", null=True, blank=True)
+    purpose = models.ManyToManyField('Purpose', related_name="purposes", null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.name} ({self.country}) - {self.year}"
+
+class Sector(models.Model):
+    name = models.CharField(max_length=100, unique=True , null=True, blank=True)
+
+    def __str__(self):
+        return self.name
+
+class Center(models.Model):
+    name = models.CharField(max_length=100, unique=True, null=True, blank=True)
+    abbreviation = models.CharField(max_length=20, unique=True, null=True, blank=True)
+
+    def __str__(self):
+        return self.abbreviation
+
+class Office(models.Model):
+    name = models.CharField(max_length=100, unique=True )
+    abbreviation = models.CharField(max_length=20, unique=True , null=True, blank=True)
+
+    def __str__(self):
+        return self.abbreviation
+
+class Purpose(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.name

@@ -2,7 +2,7 @@
 {% load humanize %}
 {% block content%}
 
-<div class="page-wrapper container-fluid">
+<div class="page-wrapper container">
     <div class="page-header d-print-none">
         <div class="container-xl">
             <div class="row g-2 align-items-center">
@@ -67,6 +67,10 @@
                             <td>{{ item.estimated_useful_life }} years</td>
                             <td>₱{{ item.unit_price|floatformat:2|intcomma }}</td>
                             <td>₱{{ item.total_amount|floatformat:2|intcomma }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="14" class="text-center">No entries found.</td>
                         </tr>
                     {% endfor %}
                 </tbody>

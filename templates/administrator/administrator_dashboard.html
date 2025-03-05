@@ -24,32 +24,14 @@
                 <div class="col">
                     <!-- Page pre-title -->
                     <div class="page-pretitle">
-                        Overview
+                        Benguet State University
                     </div>
                     <h2 class="page-title">
                         International Relations Office Management System
                     </h2>
                 </div>
             </div>
-            {% if request.session.error %}
-            <div class="alert alert-danger" id="alert-message">
-                {{ request.session.error }}
-            </div>
-            {% endif %}
-            {% if request.session.success %}
-            <div class="alert alert-success" role="alert" id="alert-message">
-                {{ request.session.success }}
-            </div>
-            {% endif %}
-            {% if messages %}
-            <div id="alert-message">
-                {% for message in messages %}
-                <div class="alert {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'success' %}alert-success{% endif %}" role="alert">
-                    {{ message }}
-                </div>
-                {% endfor %}
-            </div>
-            {% endif %}
+        
         </div>
     </div>
   
@@ -57,6 +39,17 @@
     <!-- Page body -->
     <div class="page-body">
         <div class="container-xl">
+            {% for message in messages %}
+            <div class="alert 
+                {% if message.tags == 'success' %}alert-success
+                {% elif message.tags == 'error' %}alert-danger
+                {% elif message.tags == 'warning' %}alert-warning
+                {% endif %}
+                alert-dismissible fade show" role="alert">
+                {{ message|linebreaksbr }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
             <div class="row row-cards">
                 <div class="col-sm-6 col-lg-3">
                     <a href="{% url 'item_list' %}" class="text-decoration-none">

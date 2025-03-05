@@ -1,4 +1,4 @@
-from .models import Item, ItemType, ItemImage, PartnershipFiles, Partnership, Expenditure, Year
+from .models import Item, ItemType, ItemImage, PartnershipFiles, Partnership, Expenditure, Year, InternationalVisitor, Sector, Center, Office, Purpose
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from django.shortcuts import render, redirect, get_object_or_404
@@ -25,6 +25,7 @@ from openpyxl import Workbook
 from datetime import datetime
 from django.http import JsonResponse
 from django.db.models import Count
+import pycountry
 import shutil
 import sqlite3
 import os
@@ -954,3 +955,127 @@ def delete_expenditure(request):
             return JsonResponse({"success": False, "error": "Expenditure not found."})
     
     return JsonResponse({"success": False, "error": "Invalid request."})
+
+
+def visitor_list(request):
+    # Fetch all visitors
+    visitors = InternationalVisitor.objects.all()
+
+    # Define choices
+    countries = sorted(pycountry.countries, key=lambda x: x.name)
+
+    # Create the COUNTRY_CHOICES list with sorted countries
+    COUNTRY_CHOICES = [(country.name, country.name) for country in countries]
+    SECTOR_CHOICES = Sector.objects.all()
+    CENTER_CHOICES = Center.objects.all()
+    OFFICE_CHOICES = Office.objects.all()
+    PURPOSE_CHOICES = Purpose.objects.all()
+    YEAR_CHOICES = [(year, str(year)) for year in range(2000, 2031)]  # Years from 2000 to 2030
+
+    # Pass choices and visitors to the template context
+    context = {
+        'visitors': visitors,
+        'COUNTRY_CHOICES': COUNTRY_CHOICES,
+        'SECTOR_CHOICES': SECTOR_CHOICES,
+        'CENTER_CHOICES': CENTER_CHOICES,
+        'OFFICE_CHOICES': OFFICE_CHOICES,
+        'PURPOSE_CHOICES': PURPOSE_CHOICES,
+        'YEAR_CHOICES': YEAR_CHOICES,
+    }
+
+    return render(request, 'administrator/list_of_visitors.html', context)
+def add_visitor(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        country = request.POST.get('country')
+        year = request.POST.get('year')
+        sector_visited_ids = request.POST.getlist('sector_visited')  
+        center_unit_ids = request.POST.getlist('center_unit')  
+        office_college_ids = request.POST.getlist('office_college')  
+        purpose_ids = request.POST.getlist('purpose')  
+
+        try:
+            # Create the visitor
+            visitor = InternationalVisitor.objects.create(
+                name=name,
+                country=country,
+                year=year
+            )
+
+            # Add many-to-many relationships
+            visitor.sector_visited.set(Sector.objects.filter(id__in=sector_visited_ids))
+            visitor.center_unit.set(Center.objects.filter(id__in=center_unit_ids))
+            visitor.office_college.set(Office.objects.filter(id__in=office_college_ids))
+            visitor.purpose.set(Purpose.objects.filter(id__in=purpose_ids))
+
+            messages.success(request, f"Visitor '{name}' from {country} added successfully!")
+            return redirect('visitor_list')  # Redirect to the visitor list
+        except Exception as e:
+            messages.error(request, f"Failed to add visitor '{name}' from {country}: {str(e)}")
+            return redirect('visitor_list')
+    else:
+        messages.warning(request, 'Invalid request method.')
+        return redirect('visitor_list')
+
+
+def edit_visitor(request):
+    if request.method == 'POST':
+        visitor_id = request.POST.get('visitor_id')
+        visitor = get_object_or_404(InternationalVisitor, id=visitor_id)
+
+        # Track changes
+        changes = [f"Visitor: {visitor.name}"]  # Always include the visitor's name
+
+        # Update basic fields and check for changes
+        name = request.POST.get('name')
+        country = request.POST.get('country')
+        year = request.POST.get('year')
+
+        if visitor.name != name:
+            changes.append(f"Name changed from {visitor.name} to {name}")
+            visitor.name = name
+        
+        if visitor.country != country:
+            changes.append(f"Country changed from {visitor.country} to {country}")
+            visitor.country = country
+      
+        visitor.save()
+
+        # Update many-to-many fields
+        sector_visited = request.POST.getlist('sector_visited')
+        center_unit = request.POST.getlist('center_unit')
+        office_college = request.POST.getlist('office_college')
+        purpose = request.POST.getlist('purpose')
+
+        if set(visitor.sector_visited.values_list('id', flat=True)) != set(map(int, sector_visited)):
+            changes.append("Sectors Visited updated")
+            visitor.sector_visited.set(sector_visited)
+
+        if set(visitor.center_unit.values_list('id', flat=True)) != set(map(int, center_unit)):
+            changes.append("Centers/Units updated")
+            visitor.center_unit.set(center_unit)
+
+        if set(visitor.office_college.values_list('id', flat=True)) != set(map(int, office_college)):
+            changes.append("Offices/Colleges updated")
+            visitor.office_college.set(office_college)
+
+        if set(visitor.purpose.values_list('id', flat=True)) != set(map(int, purpose)):
+            changes.append("Purpose updated")
+            visitor.purpose.set(purpose)
+
+        # Join messages with line breaks
+        messages.success(request, "Visitor updated successfully!\n" + "\n".join(changes))
+
+        return redirect('visitor_list')
+    else:
+        messages.error(request, 'Invalid request method.')
+        return redirect('visitor_list')
+
+def delete_visitor(request, visitor_id):
+    visitor = get_object_or_404(InternationalVisitor, id=visitor_id)
+    visitor_name = visitor.name
+    visitor.delete()
+    
+    messages.success(request, f"Visitor '{visitor_name}' was deleted successfully.")
+    
+    return JsonResponse({"message": f"Visitor '{visitor_name}' was deleted successfully."})

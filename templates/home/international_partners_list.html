@@ -36,7 +36,7 @@
         margin: 0 auto;
     }
     .accordion-header {
-        background-color: #36599f;
+        background-color: #003966;
         color: white;
         padding: 10px 10px 10px 30px; /* Add left padding for the arrow */
         cursor: pointer;
@@ -124,13 +124,13 @@
     }
     
     .separator-text {
-        margin: 0 20px;
+        margin: 0 10px;
         font-size: 24px;
         font-weight: bold;
-        color: #36599f;
+        color: #003966;
         text-transform: uppercase;
         background: white;
-        padding: 0 10px;
+        padding: 0 5px;
         position: relative;
         z-index: 1;
     }
@@ -160,7 +160,7 @@
     }
 
     .partner-logo {
-        height: 60px;
+        height: 90px;
         max-width: 120px;
     }
 
@@ -179,19 +179,20 @@
         }
     }
 </style>
-
-<!-- Header -->
-<div class="header-container my-5 container">
-    <h1>International Academic Partners</h1>
+<div class="container-fluid bg-primary py-5  page-header">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10 text-center">
+                <h4 class="display-5 text-white animated slideInDown">International Academic Partners</h4>
+            </div>
+        </div>
+    </div>
 </div>
 
-<!-- Map -->
-{% comment %} <div class="map-container">
-    <img src="https://via.placeholder.com/800x400" alt="World Map" class="map">
-</div> {% endcomment %}
+
 
 <!-- Marquee Section -->
-<div class="container-fluid my-4">
+<div class="container-fluid mb-2">
     <div class="marquee-container">
         <div class="marquee">
             {% for partnership in active_partnerships %}
@@ -212,7 +213,7 @@
 
 {% for continent, partnerships in continents.items %}
 <!-- Creative Separator for Continent -->
-<div class="continent-separator">
+<div class="continent-separator mb-1">
     <div class="separator-line"></div>
     <div class="separator-text">{{ continent }}</div>
     <div class="separator-line"></div>
@@ -220,9 +221,7 @@
 
 <div class="clearfix">
     <div class="accordion-container">
-        <div class="header-container mt-4">
-            <!-- Continent name is now in the separator, so this can be removed or left as is -->
-        </div>
+        
         
         <!-- Group partnerships by country -->
         {% regroup partnerships by country as country_list %}

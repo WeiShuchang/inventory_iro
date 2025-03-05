@@ -32,4 +32,8 @@ urlpatterns = [
     path('removed_partnerships/', views.removed_partnerships_view, name='removed_partnerships'),
     path('partnerships/<int:partnership_id>/edit/', views.edit_partnership, name='edit_partnership'),
     path('delete-expenditure/', views.delete_expenditure, name='delete_expenditure'),
+    path('visitors/', views.visitor_list, name='visitor_list'),
+    path('add-visitor/', views.add_visitor, name='add_visitor'),
+    path('edit-visitor/', views.edit_visitor, name='edit_visitor'),
+    path('delete-visitor/<int:visitor_id>/', views.delete_visitor, name='delete_visitor'),
 ]

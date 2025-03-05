@@ -1,0 +1,214 @@
+{% extends "home/base.html" %}
+
+{% block content %}
+<style>
+    .form-control {
+        font-size: 14px;
+        padding: 6px 10px;
+    }
+    
+    textarea.form-control {
+        height: 60px; /* Adjust for textareas */
+    }
+    
+    .room-info img {
+        width: 100%; /* Ensure all images take the full width of their container */
+        height: 200px; /* Set a fixed height for uniformity */
+        object-fit: cover; /* Crop images to fill the container while maintaining aspect ratio */
+        border-radius: 8px;
+        margin-bottom: 15px;
+    }
+    
+    .room-info img {
+        max-width: 100%;
+        border-radius: 8px;
+        margin-bottom: 15px;
+    }
+    
+    .room-info h4 {
+        margin-top: 0;
+        color: #333;
+    }
+    
+    .room-info p {
+        color: #666;
+    }
+</style>
+<div class="container-fluid bg-primary py-5  page-header">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10 text-center">
+                <h4 class="display-5 text-white animated slideInDown">Booking</h4>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container-xxl py-5">
+    <div class="container">
+        <div class="text-center wow fadeInUp" data-wow-delay="0.1s">
+            <h6 class="section-title bg-white text-center text-primary px-3">Book a Room</h6>
+            <h1 class="">Make a Reservation</h1>
+            <p class="text-muted ">Fill out the form below.</p>
+        </div>
+        
+        {% if messages %}
+            <div class="alert-container">
+                {% for message in messages %}
+                    <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-danger{% endif %} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div class="row justify-content-center ">
+            <!-- Left Column for Room Information -->
+            <div class="col-lg-4 col-md-6 wow fadeInUp card p-4 border-0 shadow-sm" data-wow-delay="0.1s">
+                <div class="room-info p-2">
+                    <h4>Room Details</h4>
+                    
+                    <!-- Bootstrap Carousel -->
+                    <div id="roomCarousel" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                            {% for room in rooms %}
+                                <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                    <!-- Room Image -->
+                                    {% if room.image %}
+                                        <img src="{{ room.image.url }}" alt="Room Image" class="d-block w-100 img-fluid">
+                                    {% else %}
+                                        <img src="path_to_default_image.jpg" alt="Default Room Image" class="d-block w-100 img-fluid">
+                                    {% endif %}
+            
+                                    <!-- Room Information Below the Image -->
+                                    <div class="room-details mt-3 p-3">
+                                        <p><strong>Room Number:</strong> {{ room.room_number }}</p>
+                                        <p><strong>Room Type:</strong> {{ room.room_type }}</p>
+                                        <p><strong>Capacity:</strong> {{ room.capacity }} Guests</p>
+                                        <p><strong>Availability:</strong> {% if room.is_available %}Available{% else %}Not Available{% endif %}</p>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+            
+                        <!-- Carousel Controls -->
+                        <button class="carousel-control-prev" type="button" data-bs-target="#roomCarousel" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#roomCarousel" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <!-- Right Column for Booking Form -->
+            <div class="col-lg-8 col-md-10 wow fadeInUp" data-wow-delay="0.2s">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4 p-lg-5 pt-0">
+                        <form method="POST">
+                            {% csrf_token %}
+                            <div class="row g-3">
+                                <!-- First Name -->
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="text" class="form-control" name="first_name" id="first_name" placeholder="First Name" required>
+                                        <label for="first_name">First Name</label>
+                                    </div>
+                                </div>
+                                <!-- Last Name -->
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="text" class="form-control" name="last_name" id="last_name" placeholder="Last Name" required>
+                                        <label for="last_name">Last Name</label>
+                                    </div>
+                                </div>
+                                <!-- College/Office/Institution -->
+                                <div class="col-6">
+                                    <div class="form-floating">
+                                        <input type="text" class="form-control" name="college_office_institution" id="college_office_institution" placeholder="College/Office/Institution" required>
+                                        <label for="college_office_institution">College/Office/Institution</label>
+                                    </div>
+                                </div>
+                                <!-- Email -->
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="email" class="form-control" name="email" id="email" placeholder="Email" required>
+                                        <label for="email">Email</label>
+                                    </div>
+                                </div>
+                                <!-- Phone Number -->
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="text" class="form-control" name="phone_number" id="phone_number" placeholder="Phone Number" required>
+                                        <label for="phone_number">Phone Number</label>
+                                    </div>
+                                </div>
+                                <!-- Room Selection -->
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <select class="form-select" name="room" id="room" required>
+                                            <option value="" disabled selected>Select a Room</option>
+                                            {% for room in rooms %}
+                                                <option value="{{ room.id }}">Room #{{room.room_number}} - {{ room.room_type }} </option>
+                                            {% endfor %}
+                                        </select>
+                                        <label for="room">Room</label>
+                                    </div>
+                                </div>
+                                <!-- Arrival Date -->
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="date" class="form-control" name="arrival_date" id="arrival_date" required>
+                                        <label for="arrival_date">Arrival Date</label>
+                                    </div>
+                                </div>
+                                <!-- Arrival Time -->
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="time" class="form-control" name="arrival_time" id="arrival_time" required>
+                                        <label for="arrival_time">Arrival Time</label>
+                                    </div>
+                                </div>
+                                <!-- Departure Date -->
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="date" class="form-control" name="departure_date" id="departure_date" required>
+                                        <label for="departure_date">Departure Date</label>
+                                    </div>
+                                </div>
+                                <!-- Departure Time -->
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="time" class="form-control" name="departure_time" id="departure_time" required>
+                                        <label for="departure_time">Departure Time</label>
+                                    </div>
+                                </div>
+                                <!-- Details -->
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <textarea class="form-control" name="details" id="details" placeholder="Indicate Number of Pax" style="height: 150px; resize: none;" required></textarea>
+                                        <label for="details">Details (Indicate Number of Pax)</label>
+                                    </div>
+                                </div>
+                                <!-- Special Request -->
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <textarea class="form-control" name="special_request" id="special_request" placeholder="Special Request" style="height: 150px; resize: none;" required></textarea>
+                                        <label for="special_request">Special Request</label>
+                                    </div>
+                                </div>
+                                <!-- Submit Button -->
+                                <div class="col-12 mt-4 text-center">
+                                    <button class="btn btn-primary w-100 py-3 fw-bold" type="submit">Book Now</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

@@ -52,7 +52,7 @@
         </div>
     </div>
 
-    <div class="page-body container-fluid">
+    <div class="page-body container">
         <div class="card">
             <div class="card-body">
                 <div class="table-responsive">
@@ -99,6 +99,10 @@
                                             No files
                                         {% endif %}
                                     </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="7" class="text-center no-entries-message">No entries found.</td>
                                 </tr>
                             {% endfor %}
                         </tbody>

@@ -1,0 +1,545 @@
+{% extends "administrator/base.html" %}
+
+{% block content %}
+
+
+
+<style>
+    /* Target the table and make the text smaller */
+    .table td, .table th {
+        font-size: 0.80rem; /* Adjust the font size */
+    }
+
+    /* Optional: Reduce padding for a tighter layout */
+    .table td, .table th {
+        padding: 0.3rem;  /* Adjust padding */
+    }
+
+    /* Pagination with white background and black text */
+    .pagination .page-link {
+        background-color: #fff; /* White background */
+        color: #000; /* Black text */
+    
+    }
+    .pagination .page-link:hover {
+        background-color: #f1f1f1; /* Light gray background on hover */
+        color: #333; /* Darker shade of black for text on hover */
+    }
+    .pagination .page-item.disabled .page-link {
+        background-color: #e0e0e0; /* Light gray background for disabled items */
+        color: #888; /* Lighter gray text for a disabled look */
+    }
+
+    .pagination .page-item {
+        margin: 0 5px; /* Add margin to each page item for spacing */
+    }
+</style>
+
+
+<div class="page-wrapper">
+    <div class="page-header d-print-none">
+        <div class="container-xl">
+            <div class="row g-2 align-items-center">
+                <div class="col">
+                    <div class="page-pretitle">
+                        International Relations Office
+                    </div>
+                    <h2 class="page-title">
+                        List of International Visitors
+                    </h2>
+                </div>
+                <div class="col-auto ms-auto d-print-none">
+                    <div class="btn-list">
+                        <a href="#" class="btn btn-primary d-none d-sm-inline-block" data-bs-toggle="modal" data-bs-target="#modal-report">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                <path d="M12 5l0 14" />
+                                <path d="M5 12l14 0" />
+                            </svg>
+                            Add New Visitor
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+       
+    </div>
+
+    <div class="page-body container">
+        {% for message in messages %}
+            <div class="alert 
+                {% if message.tags == 'success' %}alert-success
+                {% elif message.tags == 'error' %}alert-danger
+                {% elif message.tags == 'warning' %}alert-warning
+                {% endif %}
+                alert-dismissible fade show" role="alert">
+                {{ message|linebreaksbr }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+        
+    
+        <div class="card">
+         
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm datatable card-table table-bordered table-hover">
+                        <thead style="color: black; font-weight:bold; text-align:center;">
+                            <tr>
+                                <th>Name</th>
+                                <th>Country</th>
+                                <th>Year</th>
+                                <th>Sector Visited</th>
+                                <th>Center/Unit</th>
+                                <th>Office/College</th>
+                                <th>Purpose</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for visitor in visitors %}
+                                <tr>
+                                    <td>{{ visitor.name }}</td>
+                                    <td>{{ visitor.get_country_display }}</td>
+                                    <td>{{ visitor.year }}</td>
+                                    <td>
+                                        <ul>
+                                            {% for sector in visitor.sector_visited.all %}
+                                                <li>{{ sector.name }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </td>
+                                    <td>
+                                        <ul>
+                                            {% for center in visitor.center_unit.all %}
+                                                <li>{{ center.name }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </td>
+                                    <td>
+                                        <ul>
+                                            {% for office in visitor.office_college.all %}
+                                                <li>{{ office.name }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </td>
+                                    <td>
+                                        <ul>
+                                            {% for purpose in visitor.purpose.all %}
+                                                <li>{{ purpose.name }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </td>
+                                    <td class="d-flex gap-1">
+                                        <button class="btn btn-sm btn-primary edit-visitor-btn" data-bs-toggle="modal" data-bs-target="#modal-edit-visitor" data-visitor='{
+                                            "id": "{{ visitor.id }}",
+                                            "name": "{{ visitor.name }}",
+                                            "country": "{{ visitor.country }}",
+                                            "year": "{{ visitor.year }}",
+                                            "sector_visited": [{% for sector in visitor.sector_visited.all %}{"id": "{{ sector.id }}"}{% if not forloop.last %},{% endif %}{% endfor %}],
+                                            "center_unit": [{% for center in visitor.center_unit.all %}{"id": "{{ center.id }}"}{% if not forloop.last %},{% endif %}{% endfor %}],
+                                            "office_college": [{% for office in visitor.office_college.all %}{"id": "{{ office.id }}"}{% if not forloop.last %},{% endif %}{% endfor %}],
+                                            "purpose": [{% for purpose in visitor.purpose.all %}{"id": "{{ purpose.id }}"}{% if not forloop.last %},{% endif %}{% endfor %}]
+                                        }'>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                            <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+                                            <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
+                                          </svg>
+                                        </button>
+                                    
+                                        <button class="btn btn-sm btn-danger delete-visitor-btn" data-bs-toggle="modal" data-bs-target="#modal-danger" 
+                                            data-visitor-id="{{ visitor.id }}" data-visitor-name="{{ visitor.name }}">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
+                                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                                                <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+                                            </svg>
+                                        </button>
+                                    </td>
+                                    
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="8" class="text-center">No visitors found</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Delete Confirmation Modal -->
+<div class="modal modal-blur fade" id="modal-danger" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-status bg-danger"></div>
+            <div class="modal-body text-center py-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-danger icon-lg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                    <path d="M10.24 3.957l-8.422 14.06a1.989 1.989 0 0 0 1.7 2.983h16.845a1.989 1.989 0 0 0 1.7 -2.983l-8.423 -14.06a1.989 1.989 0 0 0 -3.4 0z"/>
+                    <path d="M12 9v4"/>
+                    <path d="M12 17h.01"/>
+                </svg>
+                <h3>Are you sure?</h3>
+                <div class="text-muted">Do you really want to remove <span id="visitor-name"></span>? This action cannot be undone.</div>
+            </div>
+            <div class="modal-footer">
+                <div class="w-100">
+                    <div class="row">
+                        <div class="col">
+                            <button class="btn w-100" data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                        <div class="col">
+                            <a href="#" class="btn btn-danger w-100" id="confirm-delete">Delete</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal modal-blur fade" id="modal-report" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New International Visitor</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{% url 'add_visitor' %}" method="POST">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <!-- First Row: Name, Year, Country -->
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Name</label>
+                            <input type="text" class="form-control" name="name" placeholder="Enter visitor's name" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Year of Visit</label>
+                            <select class="form-select" name="year" required>
+                                <option value="" selected disabled>Select Year</option>
+                                {% for year in YEAR_CHOICES %}
+                                    <option value="{{ year.0 }}">{{ year.1 }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Country</label>
+                            <select class="form-select" name="country" required>
+                                <option value="" selected disabled>Select Country</option>
+                                {% for code, name in COUNTRY_CHOICES %}
+                                    <option value="{{ code }}">{{ name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Second Row: Center/Unit and Sector Visited -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Center/Unit Visited</label>
+                            <div class="form-control" style="height: auto; padding: 10px;">
+                                <div class="row">
+                                    {% for center in CENTER_CHOICES %}
+                                        <div class="col-md-6">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="center_unit" value="{{ center.id }}" id="center_{{ center.id }}">
+                                                <label class="form-check-label" for="center_{{ center.id }}">
+                                                    {{ center.abbreviation }}
+                                                </label>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Sector Visited</label>
+                            <div class="form-control" style="height: auto; padding: 10px;">
+                                <div class="row">
+                                    {% for sector in SECTOR_CHOICES %}
+                                        <div class="col-md-6">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="sector_visited" value="{{ sector.id }}" id="sector_{{ sector.id }}">
+                                                <label class="form-check-label" for="sector_{{ sector.id }}">
+                                                    {{ sector.name }}
+                                                </label>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Third Row: Office/College and Purpose -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Office/College Visited</label>
+                            <div class="form-control" style="height: auto; padding: 10px;">
+                                <div class="row">
+                                    {% for office in OFFICE_CHOICES %}
+                                        <div class="col-md-6">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="office_college" value="{{ office.id }}" id="office_{{ office.id }}">
+                                                <label class="form-check-label" for="office_{{ office.id }}">
+                                                    {{ office.abbreviation }}
+                                                </label>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Purpose</label>
+                            <div class="form-control" style="height: auto; padding: 10px;">
+                                <div class="row">
+                                    {% for purpose in PURPOSE_CHOICES %}
+                                        <div class="col-md-6">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="purpose" value="{{ purpose.id }}" id="purpose_{{ purpose.id }}">
+                                                <label class="form-check-label" for="purpose_{{ purpose.id }}">
+                                                    {{ purpose.name }}
+                                                </label>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a href="#" class="btn btn-link link-secondary" data-bs-dismiss="modal">
+                        Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary ms-auto">
+                        Add Visitor
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- Modal for editing a visitor -->
+<div class="modal modal-blur fade" id="modal-edit-visitor" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit International Visitor</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="edit-visitor-form" method="POST" action="{% url 'edit_visitor' %}">
+
+                {% csrf_token %}
+                <input type="hidden" name="visitor_id" id="visitor_id">
+                <div class="modal-body">
+                    <!-- First Row: Name, Year, Country -->
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Name</label>
+                            <input type="text" class="form-control" name="name" id="edit-name" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Year of Visit</label>
+                            <select class="form-select" name="year" id="edit-year" required>
+                                <option value="" selected disabled>Select Year</option>
+                                {% for year in YEAR_CHOICES %}
+                                    <option value="{{ year.0 }}">{{ year.1 }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Country</label>
+                            <select class="form-select" name="country" id="edit-country" required>
+                                <option value="" selected disabled>Select Country</option>
+                                {% for code, name in COUNTRY_CHOICES %}
+                                    <option value="{{ code }}">{{ name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Second Row: Center/Unit and Sector Visited -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Center/Unit Visited</label>
+                            <div class="form-control" style="height: auto; padding: 10px;">
+                                <div class="row">
+                                    {% for center in CENTER_CHOICES %}
+                                        <div class="col-md-6">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="center_unit" value="{{ center.id }}" id="edit-center-{{ center.id }}">
+                                                <label class="form-check-label" for="edit-center-{{ center.id }}">
+                                                    {{ center.abbreviation }}
+                                                </label>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Sector Visited</label>
+                            <div class="form-control" style="height: auto; padding: 10px;">
+                                <div class="row">
+                                    {% for sector in SECTOR_CHOICES %}
+                                        <div class="col-md-6">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="sector_visited" value="{{ sector.id }}" id="edit-sector-{{ sector.id }}">
+                                                <label class="form-check-label" for="edit-sector-{{ sector.id }}">
+                                                    {{ sector.name }}
+                                                </label>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Third Row: Office/College and Purpose -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Office/College Visited</label>
+                            <div class="form-control" style="height: auto; padding: 10px;">
+                                <div class="row">
+                                    {% for office in OFFICE_CHOICES %}
+                                        <div class="col-md-6">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="office_college" value="{{ office.id }}" id="edit-office-{{ office.id }}">
+                                                <label class="form-check-label" for="edit-office-{{ office.id }}">
+                                                    {{ office.abbreviation }}
+                                                </label>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Purpose</label>
+                            <div class="form-control" style="height: auto; padding: 10px;">
+                                <div class="row">
+                                    {% for purpose in PURPOSE_CHOICES %}
+                                        <div class="col-md-6">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="purpose" value="{{ purpose.id }}" id="edit-purpose-{{ purpose.id }}">
+                                                <label class="form-check-label" for="edit-purpose-{{ purpose.id }}">
+                                                    {{ purpose.name }}
+                                                </label>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-link" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    // Function to populate the edit modal with visitor data
+    function populateEditModal(visitor) {
+        // Set the visitor ID
+        document.getElementById('visitor_id').value = visitor.id;
+
+        // Set the name
+        document.getElementById('edit-name').value = visitor.name;
+
+        // Set the country
+        document.getElementById('edit-country').value = visitor.country;
+
+        // Set the year
+        document.getElementById('edit-year').value = visitor.year;
+
+        // Set the checkboxes for sector_visited
+        visitor.sector_visited.forEach(sector => {
+            document.getElementById(`edit-sector-${sector.id}`).checked = true;
+        });
+
+        // Set the checkboxes for center_unit
+        visitor.center_unit.forEach(center => {
+            document.getElementById(`edit-center-${center.id}`).checked = true;
+        });
+
+        // Set the checkboxes for office_college
+        visitor.office_college.forEach(office => {
+            document.getElementById(`edit-office-${office.id}`).checked = true;
+        });
+
+        // Set the checkboxes for purpose
+        visitor.purpose.forEach(purpose => {
+            document.getElementById(`edit-purpose-${purpose.id}`).checked = true;
+        });
+    }
+
+    // Add event listeners to all edit buttons
+    document.querySelectorAll('.edit-visitor-btn').forEach(button => {
+        button.addEventListener('click', function () {
+            const visitor = JSON.parse(this.getAttribute('data-visitor'));
+            populateEditModal(visitor);
+        });
+    });
+
+        // Function to set up delete confirmation modal
+        function setupDeleteModal(visitorId, visitorName) {
+            // Set the visitor name in the modal
+            document.getElementById('visitor-name').textContent = visitorName;
+    
+            // Store the visitor ID in the delete button
+            document.getElementById('confirm-delete').setAttribute('data-visitor-id', visitorId);
+        }
+    
+        // Add event listeners to all delete buttons
+        document.querySelectorAll('.delete-visitor-btn').forEach(button => {
+            button.addEventListener('click', function () {
+                const visitorId = this.getAttribute('data-visitor-id');
+                const visitorName = this.getAttribute('data-visitor-name'); // Assuming visitor name is stored as a data attribute
+                setupDeleteModal(visitorId, visitorName);
+            });
+        });
+    
+        // Handle delete confirmation button click
+        document.getElementById('confirm-delete').addEventListener('click', function (event) {
+            event.preventDefault(); // Prevent default link behavior
+    
+            const visitorId = this.getAttribute('data-visitor-id');
+    
+            fetch(`/administrator/delete-visitor/${visitorId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,   // Ensure CSRF token is passed for Django
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    window.location.href = "/administrator/visitors/";  // ✅ Redirect so Django messages show
+                } else {
+                    alert('Error deleting visitor.');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+</script>
+
+
+{% endblock content %}
+
+
+
