@@ -91,9 +91,11 @@ class PartnershipFiles(models.Model):
 class Year(models.Model):
     year = models.PositiveIntegerField(unique=True)
     description = models.TextField(blank=True, null=True)  # New description field
+    budget = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True)  # Budget field
 
     def __str__(self):
         return str(self.year)
+
 
 class Expenditure(models.Model):
     # Classification choices
@@ -185,7 +187,7 @@ class InternationalVisitor(models.Model):
     sector_visited = models.ManyToManyField('Sector', related_name="sectors", null=True, blank=True)
     center_unit = models.ManyToManyField('Center', related_name="centers", null=True, blank=True)
     office_college = models.ManyToManyField('Office', related_name="offices", null=True, blank=True)
-    purpose = models.ManyToManyField('Purpose', related_name="purposes", null=True, blank=True)
+    purpose = models.TextField(max_length=510, blank=True) 
 
     def __str__(self):
         return f"{self.name} ({self.country}) - {self.year}"

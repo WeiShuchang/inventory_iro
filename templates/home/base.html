@@ -55,12 +55,11 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarCollapse">
         <div class="navbar-nav ms-auto p-4 p-lg-0">
-   
-            <a href="{% url 'item_types_list' %}" class="nav-item nav-link">Inventory</a>
-            <a href="{% url 'partnership_list_user' %}" class="nav-item nav-link">International Partnerships</a>
-            <a href="{% url 'book_room' %}" class="nav-item nav-link">Booking</a>
-            <a href="{% url 'login_url' %}" class="nav-item nav-link" target="_blank">Log-in</a>
-
+            <a href="{% url 'item_types_list' %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'item_types_list' %}active{% endif %}">Inventory</a>
+            <a href="{% url 'partnership_list_user' %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'partnership_list_user' %}active{% endif %}">International Partnerships</a>
+            <a href="{% url 'book_room' %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'book_room' %}active{% endif %}">Booking</a>
+            <a href="{% url 'login_url' %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'login_url' %}active{% endif %}" target="_blank">Log-in</a>
+            
             {% comment %}
             <div class="nav-item dropdown">
                 <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Pages</a>

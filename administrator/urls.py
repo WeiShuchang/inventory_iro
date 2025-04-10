@@ -1,6 +1,8 @@
 from django.urls import path
 from . import views
 
+
+
 urlpatterns = [
     path('', views.administrator_dashboard, name="administrator_dashboard"),
     path('items/', views.item_list, name='item_list'),
@@ -31,9 +33,28 @@ urlpatterns = [
     path('partnership/<int:partnership_id>/remove/', views.remove_partnership, name='remove_partnership'),
     path('removed_partnerships/', views.removed_partnerships_view, name='removed_partnerships'),
     path('partnerships/<int:partnership_id>/edit/', views.edit_partnership, name='edit_partnership'),
-    path('delete-expenditure/', views.delete_expenditure, name='delete_expenditure'),
+    path("delete-expenditure/<int:expenditure_id>/", views.delete_expenditure, name="delete_expenditure"),
     path('visitors/', views.visitor_list, name='visitor_list'),
     path('add-visitor/', views.add_visitor, name='add_visitor'),
     path('edit-visitor/', views.edit_visitor, name='edit_visitor'),
     path('delete-visitor/<int:visitor_id>/', views.delete_visitor, name='delete_visitor'),
+    path('export-international-visitors-excel/', views.export_international_visitors_to_excel, name='export_international_visitors_to_excel'),
+    path("rooms/", views.list_of_rooms, name="list_of_rooms"),
+    path("add-room/", views.add_room, name="add_room"),
+    path("delete-room/<int:room_id>/", views.delete_room, name="delete_room"),
+    path('room/edit/<int:room_id>/', views.edit_room, name='edit_room'),
+    path('years/add/', views.add_year, name='add_year'),
+    path('delete-year/<int:year_id>/', views.delete_year, name='delete_year'),
+    path("edit-year/", views.edit_year, name="edit_year"),
+    path('expenditure/edit/<int:expenditure_id>/', views.edit_expenditure, name='edit_expenditure'),
+    path('approve-reservation/', views.approve_reservation, name='approve_reservation'),
+    path('confirmed-reservations/', views.confirmed_reservations, name='confirmed_reservations'),
+    path('cancel-reservation/', views.cancel_reservation, name='cancel_reservation'),
+    path('cancel-confirmed-reservation/', views.cancel_confirmed_reservation, name='cancel_confirmed_reservation'),
+    path('cancelled-reservations/', views.cancelled_reservations_view, name='cancelled_reservations'),
+    path('completed-reservations/', views.completed_reservations, name='completed_reservations'),
+    path("pending-reservations/", views.pending_reservations, name="pending_reservations"),
+     path('complete-reservation/', views.complete_reservation, name='complete_reservation'),
 ]
+    
+

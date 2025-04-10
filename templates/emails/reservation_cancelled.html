@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .content {
+            padding: 20px;
+        }
+        .details {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .footer {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #dc3545;
+            color: white !important;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>Reservation Cancellation Notification</h2>
+    </div>
+    
+    <div class="content">
+        <p>Dear {{ reservation.first_name }} {{ reservation.last_name }},</p>
+        
+        <p>We regret to inform you that your reservation has been cancelled.</p>
+        
+        <div class="details">
+            <h3>Reservation Details:</h3>
+            <p><strong>Reference #:</strong> {{ reservation.id }}</p>
+            <p><strong>Room:</strong> {{ reservation.room }}</p>
+            <p><strong>Dates:</strong> {{ reservation.arrival_date }} to {{ reservation.departure_date }}</p>
+            <p><strong>Cancellation Reason:</strong> {{ reason }}</p>
+        </div>
+        
+        <p>If you believe this cancellation was made in error or have any questions, please don't hesitate to contact us.</p>
+        
+        <a href="mailto:{{ contact_email }}" class="button">Contact Support</a>
+    </div>
+    
+    <div class="footer">
+        <p>Best regards,</p>
+        <p>The {{ settings.SITE_NAME }} Team</p>
+        <p>
+            Phone: {{ contact_phone }}<br>
+            Email: <a href="mailto:{{ contact_email }}">{{ contact_email }}</a>
+        </p>
+    </div>
+</body>
+</html>

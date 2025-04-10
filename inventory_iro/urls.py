@@ -3,9 +3,10 @@ from django.urls import path, include
 from . import settings
 from django.conf.urls.static import static
 
+handler404 = 'administrator.views.custom_404_view'
+
 urlpatterns = [
     path('', include("home.urls")),
-    path('reservation/', include("room_reservation.urls")),
     path('administrator/', include("administrator.urls")),
     path('admin/', admin.site.urls),
 

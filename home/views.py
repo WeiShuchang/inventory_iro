@@ -1,8 +1,13 @@
-from django.shortcuts import render, get_object_or_404
-from django.shortcuts import render, redirect
+from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from administrator.models import ItemType, Item, Partnership
+from room_reservation.models import Room, Reservation
+from .forms import ReservationForm
+import json
+from django.core.serializers.json import DjangoJSONEncoder
+
+
 
 # Create your views here.
 def landing_page_view(request):
@@ -76,3 +81,39 @@ def partnership_list(request):
         "home/international_partners_list.html", 
         {'continents': continents, 'active_partnerships': active_partnerships}
     )
+
+def book_room(request):
+    form = ReservationForm()
+    rooms = Room.objects.all()
+    
+    # Get all reservations for each room
+    room_reservations = {}
+    for room in rooms:
+        reservations = Reservation.objects.filter(
+            room=room,
+            status__in=["Confirmed"]
+        ).values_list('arrival_date', 'departure_date')
+        
+        # Convert dates to ISO format strings for JSON serialization
+        room_reservations[room.id] = [
+            [arrival.isoformat(), departure.isoformat()]
+            for arrival, departure in reservations
+        ]
+    
+    if request.method == "POST":
+        form = ReservationForm(request.POST)
+        if form.is_valid():
+            try:
+                form.save()
+                messages.success(request, "Your room reservation was successful! Please wait for the administrator to view your reservation! Thank you!")
+                return redirect("book_room")
+            except Exception as e:
+                messages.error(request, f"An error occurred: {str(e)}")
+        else:
+            messages.error(request, "Please correct the errors below.")
+
+    return render(request, "home/reservation/book_room.html", {
+        "form": form,
+        "rooms": rooms,
+        "room_reservations": json.dumps(room_reservations, cls=DjangoJSONEncoder),
+    })

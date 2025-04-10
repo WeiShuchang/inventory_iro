@@ -63,7 +63,18 @@
         </div>
     </div>
 
-    <div class="page-body container-fluid">
+    <div class="page-body container">
+        {% for message in messages %}
+            <div class="alert 
+                {% if message.tags == 'success' %}alert-success
+                {% elif message.tags == 'error' %}alert-danger
+                {% elif message.tags == 'warning' %}alert-warning
+                {% endif %}
+                alert-dismissible fade show" role="alert">
+                {{ message|linebreaksbr }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
         <div class="card">
             <div class="card-body">
                 <div class="table-responsive">
@@ -78,23 +89,62 @@
                                 <th>Email</th>
                                 <th>Phone</th>
                                 <th>Special Request</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for reservation in pending_requests %}
                                 <tr>
-                                    <td>{{ reservation.created_at }}</td>
+                                    <td>
+                                        {{ reservation.created_at.date }}<br>
+                                        {{ reservation.created_at.time }}
+                                    </td>
                                     <td>{{ reservation.first_name }} {{ reservation.last_name }}</td>
                                     <td>{{ reservation.room }}</td>
-                                    <td>{{ reservation.arrival_date }} at {{ reservation.arrival_time }}</td>
-                                    <td>{{ reservation.departure_date }} at {{ reservation.departure_time }}</td>
+                                    <td>
+                                        {{ reservation.arrival_date }}<br>
+                                        {{ reservation.arrival_time }}
+                                    </td>
+                                    <td>
+                                        {{ reservation.departure_date }}<br>
+                                        {{ reservation.departure_time }}
+                                    </td>
                                     <td>{{ reservation.email }}</td>
                                     <td>{{ reservation.phone_number }}</td>
                                     <td>{{ reservation.special_request|default:"None" }}</td>
+                                    <td>
+                                        <div class="btn-group d-flex gap-1" role="group">
+                                            <button class="btn btn-sm btn-primary approve-btn" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#approveReservationModal"
+                                                    data-reservation-id="{{ reservation.id }}"
+                                                    data-reservation-user="{{ reservation.first_name }} {{ reservation.last_name }}"
+                                                    data-reservation-room="{{ reservation.room }}"
+                                                    data-reservation-arrival="{{ reservation.arrival_date }} at {{ reservation.arrival_time }}"
+                                                    data-reservation-departure="{{ reservation.departure_date }} at {{ reservation.departure_time }}"
+                                                    data-reservation-email="{{ reservation.email }}"
+                                                    data-reservation-phone="{{ reservation.phone_number }}">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-circle" viewBox="0 0 16 16">
+                                                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                                                        <path d="m10.97 4.97-.02.022-3.473 4.425-2.093-2.094a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05"/>
+                                                      </svg>
+                                            </button>
+                                            <button class="btn btn-sm btn-danger cancel-pending-btn" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#modal-cancel"
+                                                    data-reservation-id="{{ reservation.id }}"
+                                                    data-reservation-user="{{ reservation.first_name }} {{ reservation.last_name }}">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
+                                                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                                                        <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+                                                      </svg>
+                                            </button>
+                                        </div>
+                                    </td>
                                 </tr>
                             {% empty %}
                                 <tr>
-                                    <td colspan="8" class="text-center">No pending reservations found.</td>
+                                    <td colspan="9" class="text-center">No pending reservations found.</td>
                                 </tr>
                             {% endfor %}
                         </tbody>
@@ -132,5 +182,140 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="approveReservationModal" tabindex="-1" aria-labelledby="approveModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title" id="approveModalLabel">Approve Reservation</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="approveReservationForm" method="POST" action="{% url 'approve_reservation' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="reservation_id" id="reservationId">
+                    
+                    <div class="border p-3 mb-3 rounded bg-white">
+                        <h6 class="text-center text-uppercase fw-bold">Reservation Details</h6>
+                        <hr class="my-2">
+                        <div class="d-flex justify-content-between"><strong>Guest:</strong> <span id="reservationUser"></span></div>
+                        <div class="d-flex justify-content-between"><strong>Room:</strong> <span id="reservationRoom"></span></div>
+                        <div class="d-flex justify-content-between"><strong>Arrival:</strong> <span id="reservationArrival"></span></div>
+                        <div class="d-flex justify-content-between"><strong>Departure:</strong> <span id="reservationDeparture"></span></div>
+                        <div class="d-flex justify-content-between"><strong>Email:</strong> <span id="reservationEmail"></span></div>
+                        <div class="d-flex justify-content-between"><strong>Phone:</strong> <span id="reservationPhone"></span></div>
+                    </div>
+                
+                
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-dark w-100">
+                            Confirm Approval & Send Email
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cancel Reservation Modal -->
+<div class="modal modal-blur fade" id="modal-cancel" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <button type="button" class="btn-close position-absolute top-0 end-0 m-2" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-status bg-danger"></div>
+            <div class="modal-body text-center py-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-danger icon-lg" width="32" height="32" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                    <path d="M10.24 3.957l-8.422 14.06a1.989 1.989 0 0 0 1.7 2.983h16.845a1.989 1.989 0 0 0 1.7 -2.983l-8.423 -14.06a1.989 1.989 0 0 0 -3.4 0z"/>
+                    <path d="M12 9v4"/>
+                    <path d="M12 17h.01"/>
+                </svg>
+                <h3>Are you sure?</h3>
+                <div class="">
+                    Do you really want to cancel <strong><span id="cancel-item-name"></span></strong>? 
+                    This action cannot be undone.
+                </div>
+                <form id="cancel-form" method="POST" action="{% url 'cancel_reservation' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="reservation_id" id="cancel-reservation-id">
+                    <input type="hidden" name="cancelled_by" value="admin"> 
+                    <div class="mb-3 mt-3">
+                        <label for="reason_for_cancelling" class="form-label text-muted">Reason for Cancellation</label>
+                        <textarea class="form-control" name="reason_for_cancelling" id="reason_for_cancelling" rows="3" style="height: 100px; resize: none;" required></textarea>
+           
+                    </div>
+                </form>
+                
+            </div>
+            <div class="modal-footer">
+                <div class="w-100">
+                    <div class="row">
+                        <div class="col">
+                            <button class="btn w-100" data-bs-dismiss="modal">Close</button>
+                        </div>
+                        <div class="col">
+                            <button type="submit" form="cancel-form" class="btn btn-danger w-100" id="confirmCancelBtn">Cancel Reservation</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle cancel button clicks for pending reservations
+        document.querySelectorAll('.cancel-pending-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const reservationId = this.getAttribute('data-reservation-id');
+                const guestName = this.getAttribute('data-reservation-user');
+                
+                document.getElementById('cancel-item-name').textContent = 
+                    `reservation for ${guestName} (ID: ${reservationId})`;
+                document.getElementById('cancel-reservation-id').value = reservationId;
+            });
+        });
+    
+        // Form validation for cancel modal
+        const cancelForm = document.getElementById('cancel-form');
+        const reasonField = document.getElementById('reason_for_cancelling');
+        const reasonError = document.getElementById('reason-error');
+        
+        if (cancelForm) {
+            cancelForm.addEventListener('submit', function(e) {
+                if (!reasonField.value.trim()) {
+                    e.preventDefault();
+                    reasonError.style.display = 'block';
+                    reasonField.focus();
+                } else {
+                    reasonError.style.display = 'none';
+                }
+            });
+            
+            // Hide error when typing
+            reasonField.addEventListener('input', function() {
+                if (this.value.trim()) {
+                    reasonError.style.display = 'none';
+                }
+            });
+        }
+    });
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.approve-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            document.getElementById('reservationId').value = this.dataset.reservationId;
+            document.getElementById('reservationUser').textContent = this.dataset.reservationUser;
+            document.getElementById('reservationRoom').textContent = this.dataset.reservationRoom;
+            document.getElementById('reservationArrival').textContent = this.dataset.reservationArrival;
+            document.getElementById('reservationDeparture').textContent = this.dataset.reservationDeparture;
+            document.getElementById('reservationEmail').textContent = this.dataset.reservationEmail;
+            document.getElementById('reservationPhone').textContent = this.dataset.reservationPhone;
+        });
+    });
+});
+</script>
 
 {% endblock content %}

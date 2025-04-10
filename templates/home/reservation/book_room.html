@@ -33,6 +33,17 @@
     .room-info p {
         color: #666;
     }
+
+
+    .booked-date {
+        background-color: #ffcccc !important;
+        color: #cc0000 !important;
+        text-decoration: line-through;
+    }
+    .flatpickr-day.booked-date:hover {
+        background-color: #ffcccc !important;
+        cursor: not-allowed;
+    }
 </style>
 <div class="container-fluid bg-primary py-5  page-header">
     <div class="container py-5">
@@ -160,7 +171,7 @@
                                 <!-- Arrival Date -->
                                 <div class="col-md-6">
                                     <div class="form-floating">
-                                        <input type="date" class="form-control" name="arrival_date" id="arrival_date" required>
+                                        <input type="text" class="form-control" name="arrival_date" id="arrival_date" placeholder="Select Arrival Date" required>
                                         <label for="arrival_date">Arrival Date</label>
                                     </div>
                                 </div>
@@ -174,7 +185,7 @@
                                 <!-- Departure Date -->
                                 <div class="col-md-6">
                                     <div class="form-floating">
-                                        <input type="date" class="form-control" name="departure_date" id="departure_date" required>
+                                        <input type="text" class="form-control" name="departure_date" id="departure_date" placeholder="Select Departure Date" required>
                                         <label for="departure_date">Departure Date</label>
                                     </div>
                                 </div>
@@ -210,5 +221,132 @@
             </div>
         </div>
     </div>
-</div>
+</div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Elements
+        const arrivalDateInput = document.getElementById('arrival_date');
+        const departureDateInput = document.getElementById('departure_date');
+        const arrivalTimeInput = document.getElementById('arrival_time');
+        const departureTimeInput = document.getElementById('departure_time');
+        const roomSelect = document.getElementById('room');
+        
+        // Reservation data
+        const roomReservations = JSON.parse('{{ room_reservations|escapejs }}');
+        
+        let arrivalDatePicker, departureDatePicker;
+        
+        // Initialize date pickers
+        function initDatePickers() {
+            arrivalDatePicker = flatpickr(arrivalDateInput, {
+                minDate: 'today',
+                onChange: function(selectedDates, dateStr) {
+                    if (selectedDates.length) {
+                        departureDatePicker.set('minDate', dateStr);
+                        validateSelectedDates();
+                    }
+                },
+                onDayCreate: function(dObj, dStr, fp, dayElem) {
+                    applyDateStyles(dayElem);
+                }
+            });
+            
+            departureDatePicker = flatpickr(departureDateInput, {
+                minDate: 'today',
+                onChange: function(selectedDates) {
+                    validateDepartureDate();
+                    validateSelectedDates();
+                },
+                onDayCreate: function(dObj, dStr, fp, dayElem) {
+                    applyDateStyles(dayElem);
+                }
+            });
+        }
+        
+        // Apply styles and disable booked dates for the selected room
+        function applyDateStyles(dayElem) {
+            const selectedRoomId = roomSelect.value;
+            const date = dayElem.dateObj;
+            
+            if (!selectedRoomId || !roomReservations[selectedRoomId]) return;
+            
+            // Check if this date is in any reservation for the selected room
+            const isBooked = roomReservations[selectedRoomId].some(res => {
+                const start = new Date(res[0]);
+                const end = new Date(res[1]);
+                return date >= start && date <= end;
+            });
+            
+            if (isBooked) {
+                dayElem.classList.add('disabled', 'booked-date');
+                dayElem.disabled = true;
+            }
+        }
+        
+        // Validate selected dates against reservations
+        function validateSelectedDates() {
+            const selectedRoomId = roomSelect.value;
+            if (!selectedRoomId || !roomReservations[selectedRoomId]) return;
+            
+            const arrivalDate = arrivalDateInput.value ? new Date(arrivalDateInput.value) : null;
+            const departureDate = departureDateInput.value ? new Date(departureDateInput.value) : null;
+            
+            if (!arrivalDate && !departureDate) return;
+            
+            // Check if selected dates overlap with any reservation
+            const isInvalid = roomReservations[selectedRoomId].some(res => {
+                const resStart = new Date(res[0]);
+                const resEnd = new Date(res[1]);
+                
+                if (arrivalDate && !departureDate) {
+                    return arrivalDate >= resStart && arrivalDate <= resEnd;
+                } else if (!arrivalDate && departureDate) {
+                    return departureDate >= resStart && departureDate <= resEnd;
+                } else if (arrivalDate && departureDate) {
+                    return (
+                        (arrivalDate >= resStart && arrivalDate <= resEnd) ||
+                        (departureDate >= resStart && departureDate <= resEnd) ||
+                        (arrivalDate <= resStart && departureDate >= resEnd)
+                    );
+                }
+                return false;
+            });
+            
+            if (isInvalid) {
+                alert('The selected dates overlap with an existing reservation. Please choose different dates.');
+                if (arrivalDate) arrivalDatePicker.clear();
+                if (departureDate) departureDatePicker.clear();
+            }
+        }
+        
+        // Room selection change handler
+        roomSelect.addEventListener('change', function() {
+            // Redraw both date pickers to update disabled dates
+            if (arrivalDatePicker) arrivalDatePicker.redraw();
+            if (departureDatePicker) departureDatePicker.redraw();
+            
+            // Clear any existing dates and times
+            arrivalDatePicker.clear();
+            departureDatePicker.clear();
+            arrivalTimeInput.value = '';
+            departureTimeInput.value = '';
+        });
+        
+        function validateDepartureDate() {
+            if (arrivalDateInput.value && departureDateInput.value) {
+                const arrivalDate = new Date(arrivalDateInput.value);
+                const departureDate = new Date(departureDateInput.value);
+                
+                if (departureDate < arrivalDate) {
+                    departureDatePicker.setDate(arrivalDate);
+                }
+            }
+        }
+        
+        // Initialize
+        initDatePickers();
+    });
+</script>
 {% endblock content %}

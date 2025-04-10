@@ -73,7 +73,6 @@
     }
 </style>
 
-
 <div class="page-wrapper">
     <div class="page-header d-print-none">
         <div class="container-xl">
@@ -106,7 +105,19 @@
     </div>
 
     <div class="page-body container-fluid">
+        {% for message in messages %}
+            <div class="alert 
+                {% if message.tags == 'success' %}alert-success
+                {% elif message.tags == 'error' %}alert-danger
+                {% elif message.tags == 'warning' %}alert-warning
+                {% endif %}
+                alert-dismissible fade show" role="alert">
+                {{ message|linebreaksbr }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
         
+        {% if grouped_expenditures %}
         <div class="card mb-4">
             <div class="card-body">
                 <div class="table-responsive ">
@@ -121,18 +132,17 @@
                             {% for classification, total in totals_per_classification.items %}
                                 <tr>
                                     <td>{{ classification }}</td>
-                                    <td class="text-end">₱{{ total|floatformat:2|intcomma }}</td> <!-- Format total -->
+                                    <td class="text-end">₱{{ total|floatformat:2|intcomma }}</td>
                                 </tr>
                             {% endfor %}
                             <!-- Grand Total Row -->
                             <tr class="fw-bold">
                                 <td class="text-end">Grand Total:</td>
-                                <td class="text-end">₱{{ grand_total|floatformat:2|intcomma }}</td> <!-- Format grand total -->
+                                <td class="text-end">₱{{ grand_total|floatformat:2|intcomma }}</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
-        
             </div>
         </div>
        
@@ -140,7 +150,6 @@
             <div class="card-body">
                 {% for classification, expenditures in grouped_expenditures.items %}
                     <h5 class="classification-heading">{{ classification }}</h5>
-    
                     {% for expenditure_type, items in expenditures.items %}
                         <div class="table-responsive mb-3">
                             <table class="table table-sm table-hover table-bordered">
@@ -166,7 +175,7 @@
                                 </thead>
                                 <tbody>
                                     {% for item in items %}
-                                        <tr id="row-{{ item.id }}">
+                                        <tr id="row-{{ item.id }}" >
                                             <td>{{ item.item_number }}</td>
                                             <td>{{ item.description }}</td>
                                             <td>{{ item.mode_of_procurement }}</td>
@@ -176,22 +185,56 @@
                                             <td>{{ item.quarter4 }}</td>
                                             <td>{{ item.total_quantity }}</td>
                                             <td>{{ item.unit_of_measure }}</td>
-                                            <td>₱{{ item.unit_price|floatformat:2|intcomma }}</td> <!-- Format price -->
-                                            <td>₱{{ item.total_amount|floatformat:2|intcomma }}</td> <!-- Format price -->
+                                            <td>₱{{ item.unit_price|floatformat:2|intcomma }}</td>
+                                            <td>₱{{ item.total_amount|floatformat:2|intcomma }}</td>
                                             <td>{{ item.remarks }}</td>
                                             <td>
-                                                <button class="btn btn-danger btn-sm delete-btn" data-id="{{ item.id }}" data-description="{{ item.description }}" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
-                                                        <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
-                                                      </svg>
-                                                </button>
+                                                <div class="d-flex gap-1">
+                                                    <!-- Edit Button -->
+                                                    <button 
+                                                        class="btn btn-primary btn-sm edit-btn"
+                                                        data-id="{{ item.id }}"
+                                                        data-classification="{{ item.classification }}" 
+                                                        data-expenditure_type="{{ item.expenditure_type }}" 
+                                                        data-description="{{ item.description }}"
+                                                        data-mode_of_procurement="{{ item.mode_of_procurement }}"
+                                                        data-quarter1="{{ item.quarter1 }}"
+                                                        data-quarter2="{{ item.quarter2 }}"
+                                                        data-quarter3="{{ item.quarter3 }}"
+                                                        data-quarter4="{{ item.quarter4 }}"
+                                                        data-unit_of_measure="{{ item.unit_of_measure }}"
+                                                        data-unit_price="{{ item.unit_price }}"
+                                                        data-remarks="{{ item.remarks }}"
+                                                        data-url="{% url 'edit_expenditure' item.id %}"
+                                                        data-bs-toggle="modal" 
+                                                        data-bs-target="#edit-modal">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                                            <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+                                                            <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
+                                                        </svg>
+                                                    </button>
+                                            
+                                                    <!-- Delete Button -->
+                                                    <button 
+                                                        class="btn btn-danger btn-sm delete-btn" 
+                                                        data-id="{{ item.id }}" 
+                                                        data-description="{{ item.description }}" 
+                                                        data-url="{% url 'delete_expenditure' item.id %}" 
+                                                        data-bs-toggle="modal" 
+                                                        data-bs-target="#modal-danger">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
+                                                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                                                            <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+                                                        </svg>
+                                                    </button>
+                                                </div>
                                             </td>
                                         </tr>
                                     {% endfor %}
                                     <!-- Subtotal Row -->
                                     <tr class="fw-bold">
                                         <td colspan="11" class="text-end">Subtotal:</td>
-                                        <td>₱{{ subtotals|get_item:classification|get_item:expenditure_type|floatformat:2|intcomma }}</td> <!-- Format subtotal -->
+                                        <td>₱{{ subtotals|get_item:classification|get_item:expenditure_type|floatformat:2|intcomma }}</td>
                                         <td></td>
                                     </tr>
                                 </tbody>
@@ -199,33 +242,53 @@
                         </div>
                     {% endfor %}
                 {% endfor %}
-    
-                <!-- Totals Table -->
-           
             </div>
         </div>
-    </div>
-
-</div>
-
-<!-- Delete Confirmation Modal -->
-<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="confirmDeleteLabel">Confirm Deletion</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        {% else %}
+        <div class="card">
+            <div class="card-body">
+                <div class="alert alert-info">
+                    No available expenditure data for this year.
+                </div>
             </div>
-            <div class="modal-body">
-                Are you sure you want to delete "<span id="delete-item-name"></span>"?
+        </div>
+        {% endif %}
+    </div>
+</div>
+<!-- Delete Confirmation Modal -->
+<div class="modal modal-blur fade" id="modal-danger" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-status bg-danger"></div>
+            <div class="modal-body text-center py-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-danger icon-lg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                    <path d="M10.24 3.957l-8.422 14.06a1.989 1.989 0 0 0 1.7 2.983h16.845a1.989 1.989 0 0 0 1.7 -2.983l-8.423 -14.06a1.989 1.989 0 0 0 -3.4 0z"/>
+                    <path d="M12 9v4"/>
+                    <path d="M12 17h.01"/>
+                </svg>
+                <h3>Are you sure?</h3>
+                <div class="text-muted">
+                    Do you really want to remove "<span id="delete-item-name"></span>"? This action cannot be undone.
+                </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+                <div class="w-100">
+                    <div class="row">
+                        <div class="col">
+                            <button class="btn w-100" data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                        <div class="col">
+                            <a href="#" class="btn btn-danger w-100" id="confirm-delete">Delete</a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
 
 <!-- Modal for Adding New Expenditure -->
 <div class="modal fade" id="modal-add-expenditure" tabindex="-1" aria-labelledby="modal-add-expenditure-label" aria-hidden="true">
@@ -301,49 +364,137 @@
         </div>
     </div>
 </div>
+<!-- Edit Expenditure Modal -->
+<div class="modal fade" id="edit-modal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editModalLabel">Edit Expenditure</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="edit-form" method="POST">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <input type="hidden" id="edit-id" name="id">
+                    
+                    <div class="row">
+                        <div class="mb-3 col-md-6">
+                            <label for="edit-classification" class="form-label">Classification</label>
+                            <select class="form-select" id="edit-classification" name="classification" required>
+                                {% for value, label in classification_choices %}
+                                    <option value="{{ value }}">{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3 col-md-6">
+                            <label for="edit-expenditure_type" class="form-label">Expenditure Type</label>
+                            <input type="text" class="form-control" id="edit-expenditure_type" name="expenditure_type" required>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="edit-description" class="form-label">Description</label>
+                        <textarea class="form-control" id="edit-description" name="description" rows="3" required></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="edit-mode_of_procurement" class="form-label">Mode of Procurement</label>
+                        <input type="text" class="form-control" id="edit-mode_of_procurement" name="mode_of_procurement" required>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <label for="edit-quarter1" class="form-label">Q1 Quantity</label>
+                            <input type="number" class="form-control" id="edit-quarter1" name="quarter1" value="0" min="0" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="edit-quarter2" class="form-label">Q2 Quantity</label>
+                            <input type="number" class="form-control" id="edit-quarter2" name="quarter2" value="0" min="0" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="edit-quarter3" class="form-label">Q3 Quantity</label>
+                            <input type="number" class="form-control" id="edit-quarter3" name="quarter3" value="0" min="0" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="edit-quarter4" class="form-label">Q4 Quantity</label>
+                            <input type="number" class="form-control" id="edit-quarter4" name="quarter4" value="0" min="0" required>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="mb-3 col-md-6">
+                            <label for="edit-unit_of_measure" class="form-label">Unit of Measure</label>
+                            <input type="text" class="form-control" id="edit-unit_of_measure" name="unit_of_measure" required>
+                        </div>
+                        <div class="mb-3 col-md-6">
+                            <label for="edit-unit_price" class="form-label">Unit Price</label>
+                            <input type="number" class="form-control" id="edit-unit_price" name="unit_price" step="0.01" required>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="edit-remarks" class="form-label">Remarks</label>
+                        <textarea class="form-control" id="edit-remarks" name="remarks" rows="2"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-    $(document).ready(function () {
-        let expenditureIdToDelete = null;
-        let rowToDelete = null;
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".delete-btn").forEach(function (button) {
+            button.addEventListener("click", function () {
+                let itemDescription = this.getAttribute("data-description");
+                let deleteUrl = this.getAttribute("data-url");
 
-        $(".delete-btn").click(function () {
-            expenditureIdToDelete = $(this).data("id");
-            rowToDelete = $("#row-" + expenditureIdToDelete); // Select the row
-            let itemDescription = $(this).data("description");
-
-            $("#delete-item-name").text(itemDescription); // Show item description in modal
-        });
-
-        $("#confirmDeleteBtn").click(function () {
-            if (expenditureIdToDelete) {
-                $.ajax({
-                    url: "{% url 'delete_expenditure' %}",
-                    type: "POST",
-                    data: {
-                        "id": expenditureIdToDelete,
-                        "csrfmiddlewaretoken": "{{ csrf_token }}"
-                    },
-                    success: function (response) {
-                        if (response.success) {
-                            $("#confirmDeleteModal").modal("hide"); // Close modal
-
-                            // Animate and remove row from DOM without refreshing
-                            rowToDelete.fadeOut(300, function () {
-                                $(this).remove();
-                            });
-
-                        } else {
-                            alert("Error deleting expenditure.");
-                        }
-                    },
-                    error: function () {
-                        alert("Failed to communicate with the server.");
-                    }
-                });
-            }
+                document.getElementById("delete-item-name").textContent = itemDescription; // Show item description
+                document.getElementById("confirm-delete").setAttribute("href", deleteUrl); // Set delete link
+            });
         });
     });
 </script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".edit-btn").forEach(button => {
+            button.addEventListener("click", function () {
+                // Set all form values
+                document.getElementById("edit-id").value = this.dataset.id;
+                document.getElementById("edit-classification").value = this.dataset.classification;
+                document.getElementById("edit-expenditure_type").value = this.dataset.expenditure_type;
+                document.getElementById("edit-description").value = this.dataset.description;
+                document.getElementById("edit-mode_of_procurement").value = this.dataset.mode_of_procurement;
+                document.getElementById("edit-quarter1").value = this.dataset.quarter1;
+                document.getElementById("edit-quarter2").value = this.dataset.quarter2;
+                document.getElementById("edit-quarter3").value = this.dataset.quarter3;
+                document.getElementById("edit-quarter4").value = this.dataset.quarter4;
+                document.getElementById("edit-unit_of_measure").value = this.dataset.unit_of_measure;
+                document.getElementById("edit-unit_price").value = this.dataset.unit_price;
+                document.getElementById("edit-remarks").value = this.dataset.remarks;
+                document.getElementById("edit-form").action = this.dataset.url;
+            });
+        });
 
+        // Auto-calculate total quantity when quarter values change
+        const quarterInputs = ['edit-quarter1', 'edit-quarter2', 'edit-quarter3', 'edit-quarter4'];
+        quarterInputs.forEach(id => {
+            document.getElementById(id).addEventListener('change', calculateTotalQuantity);
+        });
+
+        function calculateTotalQuantity() {
+            const q1 = parseFloat(document.getElementById('edit-quarter1').value) || 0;
+            const q2 = parseFloat(document.getElementById('edit-quarter2').value) || 0;
+            const q3 = parseFloat(document.getElementById('edit-quarter3').value) || 0;
+            const q4 = parseFloat(document.getElementById('edit-quarter4').value) || 0;
+            const total = q1 + q2 + q3 + q4;
+            // If you want to display the total somewhere, you'll need to add an element for it
+            // document.getElementById('some-total-element').value = total;
+        }
+    });
+</script>
 {% endblock %}

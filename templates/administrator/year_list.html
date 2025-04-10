@@ -1,9 +1,9 @@
 {% extends "administrator/base.html" %}
+{% load humanize %}  {# Load humanize for formatting #}
 
 {% block content %}
 
-<div class=" page-wrapper ">
-
+<div class="page-wrapper">
 
     <div class="page-header d-print-none">
         <div class="container-xl">
@@ -18,7 +18,7 @@
                 </div>
                 <div class="col-auto ms-auto d-print-none">
                     <div class="btn-list">
-                        <a href="#" class="btn btn-primary d-none d-sm-inline-block" data-bs-toggle="modal" data-bs-target="#modal-add-partnership">
+                        <a href="#" class="btn btn-primary d-none d-sm-inline-block" data-bs-toggle="modal" data-bs-target="#modal-add-year">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                 <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
                                 <path d="M12 5l0 14" />
@@ -31,44 +31,306 @@
             </div>
         </div>
     </div>
-    
     <div class="page-body container">
-        
+        {% for message in messages %}
+            <div class="alert 
+                {% if message.tags == 'success' %}alert-success
+                {% elif message.tags == 'error' %}alert-danger
+                {% elif message.tags == 'warning' %}alert-warning
+                {% endif %}
+                alert-dismissible fade show" role="alert">
+                {{ message|linebreaksbr }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
         <div class="row">
-            {% for year in years %}
-            <div class="col-md-6 col-lg-3 mb-4">
-                <div class="card">
+            {% for data in year_data %}
+            {% with year=data.year_obj %}
+            <div class="col-md-6 col-lg-6 mb-4">
+                <div class="card card-link card-link-pop position-relative">
                     <div class="card-body">
-                        <h3 class="card-title">{{ year.year }}</h3>
-                        <p class="text-muted">{{ year.description|default:"No description available." }}</p>
+                        <!-- Delete Button -->
+                        <div class="position-absolute top-0 end-0 m-2 d-flex">
+                            <!-- Edit Button -->
+                            <button type="button" class="btn btn-sm btn-primary me-1" 
+                                data-bs-toggle="modal" data-bs-target="#editYearModal" 
+                                data-year-id="{{ year.id }}" data-year="{{ year.year }}" 
+                                data-description="{{ year.description }}" data-budget="{{ year.budget }}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                    <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+                                    <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
+                                </svg>
+                            </button>
+                        
+                            <!-- Delete Button -->
+                            <button type="button" class="btn btn-sm btn-danger" 
+                                data-bs-toggle="modal" data-bs-target="#modal-danger" 
+                                data-year-id="{{ year.id }}" data-year-name="{{ year.year }}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
+                                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                                    <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+                                </svg>
+                            </button>
+                        </div>
+                        
+        
+                        <h3 class="card-title mb-2">{{ year.year }}</h3>
+                        <p class="text-muted mb-3">{{ year.description|default:"No description available." }}</p>
+                        
+                        <div class="budget-calculation mb-3">
+                            <div class="d-flex justify-content-between border-bottom pb-1 mb-1">
+                                <span>Budget</span>
+                                <span>₱{{ year.budget|default:"0.00"|intcomma }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between border-bottom pb-1 mb-1">
+                                <span>Spent</span>
+                                <span>-₱{{ data.total_spent|default:"0.00"|intcomma }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between border-top pt-2 fw-bold">
+                                <span>Unspent</span>
+                                <span class="{% if data.unspent < 0 %}text-danger{% else %}text-success{% endif %}">
+                                    ₱{{ data.unspent|default:"0.00"|intcomma }}
+                                </span>
+                            </div>
+                        </div>
+                        <!-- Pie Chart -->
+                        <div class="mt-3" style="height: 200px;">
+                            <canvas id="pieChart{{ year.id }}"></canvas>
+                        </div>
                     </div>
-                    <!-- Card footer -->
                     <div class="card-footer">
-                        <a href="{% url 'year_detail' year.id %}" class="btn btn-primary">View Details</a>
+                        <a href="{% url 'year_detail' year.id %}" class="btn btn-primary btn-sm">View Details</a>
                     </div>
                 </div>
             </div>
+            {% endwith %}
             {% empty %}
             <div class="col-12">
                 <p>No years available.</p>
             </div>
             {% endfor %}
         </div>
+        
+    
+    </div>
+    <!-- Delete Confirmation Modal -->
+    <div class="modal modal-blur fade" id="modal-danger" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div class="modal-status bg-danger"></div>
+                <div class="modal-body text-center py-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-danger icon-lg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                        <path d="M10.24 3.957l-8.422 14.06a1.989 1.989 0 0 0 1.7 2.983h16.845a1.989 1.989 0 0 0 1.7 -2.983l-8.423 -14.06a1.989 1.989 0 0 0 -3.4 0z"/>
+                        <path d="M12 9v4"/>
+                        <path d="M12 17h.01"/>
+                    </svg>
+                    <h3>Are you sure?</h3>
+                    <div class="text-muted">Do you really want to remove <span id="year-name"></span>? This action cannot be undone.</div>
+                </div>
+                <div class="modal-footer">
+                    <div class="w-100">
+                        <div class="row">
+                            <div class="col">
+                                <button class="btn w-100" data-bs-dismiss="modal">Cancel</button>
+                            </div>
+                            <div class="col">
+                                <a href="#" class="btn btn-danger w-100" id="confirm-delete">Delete</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>    
+    <!-- Modal for adding a new year -->
+    <div class="modal fade" id="modal-add-year" tabindex="-1" aria-labelledby="modal-add-year-label" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modal-add-year-label">Add New Year</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="POST" action="{% url 'add_year' %}">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="year" class="form-label">Year</label>
+                            <select class="form-control" name="year" id="year" required>
+                                <option value="" selected disabled>Select Year</option>
+                                {% for y in available_years %}
+                                <option value="{{ y }}">{{ y }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="budget" class="form-label">Budget</label>
+                            <input type="number" class="form-control" name="budget" id="budget" step="0.01" min="0" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" name="description" id="description" rows="3"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add Year</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 
+    <div class="modal fade" id="editYearModal" tabindex="-1" aria-labelledby="editYearModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editYearModalLabel">Edit Year</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="POST" action="{% url 'edit_year' %}">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <input type="hidden" name="year_id" id="editYearId">
+                        <div class="mb-3">
+                            <label for="editYear" class="form-label">Year</label>
+                            <input type="number" class="form-control" name="year" id="editYear" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editDescription" class="form-label">Description</label>
+                            <textarea class="form-control" name="description" id="editDescription"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editBudget" class="form-label">Budget (₱)</label>
+                            <input type="number" step="0.01" class="form-control" name="budget" id="editBudget">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
     
 
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var editModal = document.getElementById("editYearModal");
+        editModal.addEventListener("show.bs.modal", function (event) {
+            var button = event.relatedTarget; // Button that triggered the modal
+            var yearId = button.getAttribute("data-year-id");
+            var year = button.getAttribute("data-year");
+            var description = button.getAttribute("data-description");
+            var budget = button.getAttribute("data-budget");
+    
+            // Populate the modal fields
+            document.getElementById("editYearId").value = yearId;
+            document.getElementById("editYear").value = year;
+            document.getElementById("editDescription").value = description || ""; // Handle null values
+            document.getElementById("editBudget").value = budget || "0.00";
+        });
+    });
+</script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var deleteButtons = document.querySelectorAll("[data-bs-target='#modal-danger']");
+        var deleteModal = document.getElementById("modal-danger");
+        var confirmDeleteBtn = document.getElementById("confirm-delete");
+        var yearNameSpan = document.getElementById("year-name");
+    
+        deleteButtons.forEach(function (button) {
+            button.addEventListener("click", function () {
+                var yearId = button.getAttribute("data-year-id");
+                var yearName = button.getAttribute("data-year-name");
+    
+                console.log("Year ID:", yearId, "Year Name:", yearName); // Debugging
+    
+                if (yearId && yearName) {
+                    yearNameSpan.textContent = yearName;
+                    confirmDeleteBtn.href = "/administrator/delete-year/" + yearId + "/";
+                }
+            });
+        });
+    });
+    
 
-
-
-
-{% endblock content %}
-
-
-
-
-
-
-
+</script>
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Define a fixed color palette
+    const fixedColors = [
+        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', 
+        '#FF9F40', '#8AC24A', '#F06292', '#7986CB', '#A1887F',
+        '#BA68C8', '#64B5F6', '#4DB6AC', '#81C784', '#FFD54F'
+    ];
+    
+    {% for data in year_data %}
+    {% with year=data.year_obj %}
+    // Prepare data for chart
+    const ctx{{ year.id }} = document.getElementById('pieChart{{ year.id }}');
+    
+    const labels{{ year.id }} = [
+        {% for classification, amount in data.classification_data.items %}
+        '{{ classification }}',
+        {% endfor %}
+        'Unspent Budget'
+    ];
+    
+    const data{{ year.id }} = [
+        {% for classification, amount in data.classification_data.items %}
+        {{ amount }},
+        {% endfor %}
+        {{ data.unspent }}
+    ];
+    
+    const backgroundColors{{ year.id }} = [
+        {% for classification, amount in data.classification_data.items %}
+        fixedColors[{{ forloop.counter0 }} % fixedColors.length],
+        {% endfor %}
+        '#cccccc' // Gray for unspent
+    ];
+    
+    new Chart(ctx{{ year.id }}, {
+        type: 'pie',
+        data: {
+            labels: labels{{ year.id }},
+            datasets: [{
+                data: data{{ year.id }},
+                backgroundColor: backgroundColors{{ year.id }},
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right',
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            label += '₱' + context.raw.toLocaleString();
+                            return label;
+                        }
+                    }
+                }
+            }
+        }
+    });
+    {% endwith %}
+    {% endfor %}
+});
+</script>
+{% endblock %}
 

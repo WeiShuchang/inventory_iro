@@ -1,5 +1,5 @@
 from django import forms
-from .models import Item, ItemType, ItemImage, Partnership
+from .models import Item, ItemType, ItemImage, Partnership, Expenditure
 
 class ItemForm(forms.ModelForm):
     class Meta:
@@ -49,3 +49,26 @@ class PartnershipForm(forms.ModelForm):
     class Meta:
         model = Partnership
         fields = ['continent', 'country', 'partner', 'type_of_organization', 'description', 'logo', 'status', 'url']
+
+class ExpenditureForm(forms.ModelForm):
+    class Meta:
+        model = Expenditure
+        fields = [
+            'classification', 'expenditure_type', 'description', 'mode_of_procurement',
+            'quarter1', 'quarter2', 'quarter3', 'quarter4', 'unit_of_measure',
+            'unit_price', 'remarks', 'year'
+        ]
+        widgets = {
+            'classification': forms.Select(attrs={'class': 'form-control'}),
+            'expenditure_type': forms.TextInput(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'mode_of_procurement': forms.TextInput(attrs={'class': 'form-control'}),
+            'quarter1': forms.NumberInput(attrs={'class': 'form-control'}),
+            'quarter2': forms.NumberInput(attrs={'class': 'form-control'}),
+            'quarter3': forms.NumberInput(attrs={'class': 'form-control'}),
+            'quarter4': forms.NumberInput(attrs={'class': 'form-control'}),
+            'unit_of_measure': forms.TextInput(attrs={'class': 'form-control'}),
+            'unit_price': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+            'remarks': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
+            'year': forms.Select(attrs={'class': 'form-control'})
+        }

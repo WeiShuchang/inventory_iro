@@ -1,0 +1,161 @@
+{% extends "administrator/base.html" %}
+
+{% block content %}
+
+<style>
+    /* Target the table and make the text smaller */
+    .table td, .table th {
+        font-size: .80rem; /* Adjust font size */
+    }
+
+    /* Reduce padding for a tighter layout */
+    .table td, .table th {
+        padding: 0.3rem;  
+    }
+
+    /* Status badge styles */
+    .status-badge {
+        width: 10px;
+        height: 10px;
+        display: inline-block;
+        border-radius: 50%;
+        margin-right: 5px;
+    }
+
+    .status-pending { background-color: #ffc107; } /* Yellow for Pending */
+    .status-confirmed { background-color: #28a745; } /* Green for Confirmed */
+    .status-cancelled { background-color: #dc3545; } /* Red for Cancelled */
+    .status-completed { background-color: #17a2b8; } /* Teal for Completed */
+
+    /* Pagination styles */
+    .pagination .page-link {
+        background-color: #fff;
+        color: #000;
+    }
+
+    .pagination .page-link:hover {
+        background-color: #f1f1f1;
+        color: #333;
+    }
+
+    .pagination .page-item.disabled .page-link {
+        background-color: #e0e0e0;
+        color: #888;
+    }
+
+    .pagination .page-item {
+        margin: 0 5px;
+    }
+</style>
+
+<div class="page-wrapper">
+    <div class="page-header d-print-none">
+        <div class="container-xl">
+            <div class="row g-2 align-items-center">
+                <div class="col">
+                    <div class="page-pretitle">
+                        Reservation Management
+                    </div>
+                    <h2 class="page-title">
+                        Completed Reservations
+                    </h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-body container">
+        {% for message in messages %}
+            <div class="alert 
+                {% if message.tags == 'success' %}alert-success
+                {% elif message.tags == 'error' %}alert-danger
+                {% elif message.tags == 'warning' %}alert-warning
+                {% endif %}
+                alert-dismissible fade show" role="alert">
+                {{ message|linebreaksbr }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover">
+                        <thead class="thead-dark">
+                            <tr>     
+                                <th>Created At</th>
+                                <th>Completed At</th>
+                                <th>Guest Name</th>
+                                <th>Room</th>
+                                <th>Arrival</th>
+                                <th>Departure</th>
+                                <th>Special Request</th>
+                   
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for reservation in completed_reservations %}
+                                <tr>
+                                    <td>
+                                        {{ reservation.created_at.date }}<br>
+                                        {{ reservation.created_at.time }}
+                                    </td>
+                                    <td>
+                                        {{ reservation.completed_at.date }}<br>
+                                        {{ reservation.completed_at.time }}
+                                    </td>
+                                    
+                                    <td>{{ reservation.first_name }} {{ reservation.last_name }}</td>
+                                    <td>{{ reservation.room }}</td>
+                                    <td>
+                                        {{ reservation.arrival_date }}<br>
+                                        {{ reservation.arrival_time }}
+                                    </td>
+                                    <td>
+                                        {{ reservation.departure_date }}<br>
+                                        {{ reservation.departure_time }}
+                                    </td>
+                            
+                                    <td>{{ reservation.special_request|default:"None" }}</td>
+                                  
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="11" class="text-center">No completed reservations found.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Pagination (if applicable) -->
+                {% if completed_reservations.paginator.num_pages > 1 %}
+                    <nav>
+                        <ul class="pagination justify-content-center">
+                            {% if completed_reservations.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=1">First</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ completed_reservations.previous_page_number }}">Previous</a>
+                                </li>
+                            {% endif %}
+                            
+                            <li class="page-item disabled">
+                                <span class="page-link">Page {{ completed_reservations.number }} of {{ completed_reservations.paginator.num_pages }}</span>
+                            </li>
+                            
+                            {% if completed_reservations.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ completed_reservations.next_page_number }}">Next</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ completed_reservations.paginator.num_pages }}">Last</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

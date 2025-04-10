@@ -52,6 +52,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'administrator.middleware.PreventBackHistoryMiddleware',
+    'administrator.middleware.AdminMiddleware',
+    'administrator.middleware.AdminLoginRedirectMiddleware',
+  
 ]
 
 ROOT_URLCONF = 'inventory_iro.urls'
@@ -106,6 +110,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
@@ -135,3 +140,15 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Use an absolute path to the font file
+
+# settings.py
+DEFAULT_FROM_EMAIL = 'sanchezmaronharvey@gmail.com'  # Must match authorized sender
+
+
+# Gmail SMTP Settings
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'sanchezmaronharvey@gmail.com'
+EMAIL_HOST_PASSWORD = 'dnme fcfh iyal fdge'  # Use an app password or environment variable for security

@@ -91,6 +91,10 @@
             
             <!-- Export Buttons -->
             <div class="col-md-3">
+                <a href="{% url 'item_list' %}" class="btn btn-secondary"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/>
+                    <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/>
+                  </svg></a>
                 <a href="{% url 'export_items' %}?q={{ query }}&item_type={{ item_type }}" class="btn btn-success">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-file-earmark-excel" viewBox="0 0 20 20">
                         <path d="M5.884 6.68a.5.5 0 1 0-.768.64L7.349 10l-2.233 2.68a.5.5 0 0 0 .768.64L8 10.781l2.116 2.54a.5.5 0 0 0 .768-.641L8.651 10l2.233-2.68a.5.5 0 0 0-.768-.64L8 9.219l-2.116-2.54z"/>
@@ -175,43 +179,43 @@
                         </table>
                     </div>
                 </div>
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center">
+                        {% if items.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1{% if query %}&q={{ query }}{% endif %}{% if item_type %}&item_type={{ item_type }}{% endif %}" aria-label="First">
+                                    &laquo;&laquo; First
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ items.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if item_type %}&item_type={{ item_type }}{% endif %}" aria-label="Previous">
+                                    &laquo; Previous
+                                </a>
+                            </li>
+                        {% endif %}
+        
+                        <li class="page-item disabled">
+                            <span class="page-link">Page {{ items.number }} of {{ items.paginator.num_pages }}</span>
+                        </li>
+        
+                        {% if items.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ items.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if item_type %}&item_type={{ item_type }}{% endif %}" aria-label="Next">
+                                    Next &raquo;
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ items.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}{% if item_type %}&item_type={{ item_type }}{% endif %}" aria-label="Last">
+                                    Last &raquo;&raquo;
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
             </div>
 
     
-            <!-- Pagination -->
-            <nav aria-label="Page navigation">
-                <ul class="pagination justify-content-center">
-                    {% if items.has_previous %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page=1{% if query %}&q={{ query }}{% endif %}{% if item_type %}&item_type={{ item_type }}{% endif %}" aria-label="First">
-                                &laquo;&laquo; First
-                            </a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ items.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if item_type %}&item_type={{ item_type }}{% endif %}" aria-label="Previous">
-                                &laquo; Previous
-                            </a>
-                        </li>
-                    {% endif %}
-    
-                    <li class="page-item disabled">
-                        <span class="page-link">Page {{ items.number }} of {{ items.paginator.num_pages }}</span>
-                    </li>
-    
-                    {% if items.has_next %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ items.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if item_type %}&item_type={{ item_type }}{% endif %}" aria-label="Next">
-                                Next &raquo;
-                            </a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ items.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}{% if item_type %}&item_type={{ item_type }}{% endif %}" aria-label="Last">
-                                Last &raquo;&raquo;
-                            </a>
-                        </li>
-                    {% endif %}
-                </ul>
-            </nav>
+        
         </div>
     </div>
     
@@ -323,7 +327,6 @@
         </div>
     </div>
 </div>
-
 
 
 <style>

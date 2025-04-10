@@ -1,0 +1,285 @@
+{% extends 'administrator/base.html' %}
+{% block content %}
+<style>
+    .card-img-top {
+        width: 100%; /* Ensures responsiveness */
+        height: 200px; /* Fixed height */
+        object-fit: cover; /* Ensures the image covers the area without distortion */
+    }
+    
+</style>
+<div class="page-wrapper">
+    <div class="page-header d-print-none">
+        <div class="container-xl">
+            <div class="row g-2 align-items-center">
+                <div class="col">
+                    <div class="page-pretitle">
+                        International Relations Office
+                    </div>
+                    <h2 class="page-title">
+                        Rooms
+                    </h2>
+                </div>
+                <div class="col-auto ms-auto d-print-none">
+                    <div class="btn-list">
+                        <a href="#" class="btn btn-primary d-none d-sm-inline-block" data-bs-toggle="modal" data-bs-target="#modal-add-room">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                <path d="M12 5l0 14" />
+                                <path d="M5 12l14 0" />
+                            </svg>
+                            Add New Room
+                        </a>
+                    </div>
+                </div>
+                
+            
+            </div>
+          
+        </div>
+    </div>
+    <div class="page-body">
+        <div class="container-xl">
+            {% for message in messages %}
+                <div class="alert 
+                    {% if message.tags == 'success' %}alert-success
+                    {% elif message.tags == 'error' %}alert-danger
+                    {% elif message.tags == 'warning' %}alert-warning
+                    {% endif %}
+                    alert-dismissible fade show" role="alert">
+                    {{ message|linebreaksbr }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+            <div class="row row-cards">
+                {% for room in rooms %}
+                <div class="col-sm-6 col-lg-3">
+                    <div class="card card-sm position-relative">
+                        <a href="#" class="d-block">
+                            {% if room.image %}
+                                <img src="{{ room.image.url }}" class="card-img-top img-fluid" alt="{{ room.room_number }}" style="width: 100%; height: auto;">
+                            {% else %}
+                                <img src="/static/rooms/default.jpg" class="card-img-top img-fluid" alt="Default room image" style="width: 100%; height: auto;">
+                            {% endif %}
+                        </a>
+                    
+                        <!-- Edit and Delete Buttons -->
+                        <div class="position-absolute top-0 end-0 m-2">
+                            <!-- Edit Button -->
+                            <button class="btn btn-sm btn-primary p-1" data-bs-toggle="modal"
+                                data-bs-target="#modal-edit-room-{{ room.id }}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                    <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+                                    <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
+                                  </svg>
+                            </button>
+                    
+                            <!-- Delete Button -->
+                            <button class="btn btn-sm btn-danger p-1" data-bs-toggle="modal"
+                                data-bs-target="#modal-delete-room" data-room-id="{{ room.id }}" data-room-number="{{ room.room_number }}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                    class="bi bi-x-circle" viewBox="0 0 16 16">
+                                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                                    <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+                                </svg>
+                            </button>
+                        </div>
+                    
+                        <div class="card-body">
+                            <h5 class="card-title">{{ room.room_type }} - {{ room.room_number }}</h5>
+                    
+                            <!-- Availability Badge -->
+                            <span class="badge {% if room.is_available %}bg-success{% else %}bg-danger{% endif %}">
+                                {% if room.is_available %}
+                                    Available
+                                {% else %}
+                                    Reserved
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Edit Room Modal -->
+                <div class="modal fade" id="modal-edit-room-{{ room.id }}" tabindex="-1" aria-labelledby="editRoomLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="editRoomLabel">Edit Room {{ room.room_number }}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <form method="post" action="{% url 'edit_room' room.id %}" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <div class="modal-body">
+                                    <div class="row">
+                                        <!-- Left Column -->
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="roomType" class="form-label">Room Type</label>
+                                                <input type="text" class="form-control" name="room_type" value="{{ room.room_type }}" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="roomNumber" class="form-label">Room Number</label>
+                                                <input type="text" class="form-control" name="room_number" value="{{ room.room_number }}" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="availability" class="form-label">Availability</label>
+                                                <select class="form-control" name="is_available">
+                                                    <option value="True" {% if room.is_available %}selected{% endif %}>Available</option>
+                                                    <option value="False" {% if not room.is_available %}selected{% endif %}>Reserved</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="capacity" class="form-label">Capacity</label>
+                                                <input type="number" class="form-control" name="capacity" value="{{ room.capacity }}" required>
+                                            </div>
+                                        </div>
+            
+                                        <!-- Right Column -->
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="description" class="form-label">Description</label>
+                                                <textarea class="form-control" name="description" rows="3">{{ room.description }}</textarea>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="roomImage" class="form-label">Current Image</label>
+                                                <div class="mb-2">
+                                                    {% if room.image %}
+                                                        <img src="{{ room.image.url }}" alt="Room Image" class="img-fluid rounded" style="max-height: 150px;">
+                                                    {% else %}
+                                                        <p class="text-muted">No image available</p>
+                                                    {% endif %}
+                                                </div>
+                                                <label for="roomImage" class="form-label">Upload New Image</label>
+                                                <input type="file" class="form-control" name="room_image">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+            
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <p>No rooms available.</p>
+                {% endfor %}
+            </div>
+            
+        </div>
+    </div>
+</div>
+<!-- Add Room Modal -->
+<div class="modal fade" id="modal-add-room" tabindex="-1" aria-labelledby="modal-add-room-label" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modal-add-room-label">Add New Room</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{% url 'add_room' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="room_number" class="form-label">Room Number</label>
+                                <input type="text" class="form-control" id="room_number" name="room_number" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="room_type" class="form-label">Room Type</label>
+                                <select class="form-control" id="room_type" name="room_type" required>
+                                    <option value="Single">Single</option>
+                                    <option value="Double">Double</option>
+                                    <option value="Suite">Suite</option>
+                                    <option value="Hall">Hall</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="capacity" class="form-label">Capacity</label>
+                                <input type="number" class="form-control" id="capacity" name="capacity" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="image" class="form-label">Room Image</label>
+                                <input type="file" class="form-control" id="image" name="image" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="2"></textarea>
+                    </div>
+                    
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="is_available" name="is_available" checked>
+                        <label class="form-check-label" for="is_available">Available</label>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Room</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- Delete Confirmation Modal -->
+<div class="modal modal-blur fade" id="modal-delete-room" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-status bg-danger"></div>
+            <div class="modal-body text-center py-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-danger icon-lg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                    <path d="M10.24 3.957l-8.422 14.06a1.989 1.989 0 0 0 1.7 2.983h16.845a1.989 1.989 0 0 0 1.7 -2.983l-8.423 -14.06a1.989 1.989 0 0 0 -3.4 0z"/>
+                    <path d="M12 9v4"/>
+                    <path d="M12 17h.01"/>
+                </svg>
+                <h3>Are you sure?</h3>
+                <div class="text-muted">Do you really want to delete <span id="room-name"></span>? This action cannot be undone.</div>
+            </div>
+            <div class="modal-footer">
+                <div class="w-100">
+                    <div class="row">
+                        <div class="col">
+                            <button class="btn w-100" data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                        <div class="col">
+                            <a href="#" class="btn btn-danger w-100" id="confirm-delete">Delete</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    var deleteModal = document.getElementById('modal-delete-room');
+    deleteModal.addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget;
+        var roomId = button.getAttribute('data-room-id');
+        var roomNumber = button.getAttribute('data-room-number');
+
+        document.getElementById('room-name').innerText = "Room " + roomNumber;
+        document.getElementById('confirm-delete').setAttribute('href', '/administrator/delete-room/' + roomId + '/');
+    });
+});
+</script>
+
+{% endblock %}

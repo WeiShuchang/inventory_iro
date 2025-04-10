@@ -1,0 +1,317 @@
+{% extends "administrator/base.html" %}
+
+{% block content %}
+
+<style>
+    /* Target the table and make the text smaller */
+    .table td, .table th {
+        font-size: .80rem; /* Adjust font size */
+    }
+
+    /* Reduce padding for a tighter layout */
+    .table td, .table th {
+        padding: 0.3rem;  
+    }
+
+    /* Status badge styles */
+    .status-badge {
+        width: 10px;
+        height: 10px;
+        display: inline-block;
+        border-radius: 50%;
+        margin-right: 5px;
+    }
+
+    .status-pending { background-color: #ffc107; } /* Yellow for Pending */
+    .status-confirmed { background-color: #28a745; } /* Green for Confirmed */
+    .status-cancelled { background-color: #dc3545; } /* Red for Cancelled */
+
+    /* Pagination styles */
+    .pagination .page-link {
+        background-color: #fff;
+        color: #000;
+    }
+
+    .pagination .page-link:hover {
+        background-color: #f1f1f1;
+        color: #333;
+    }
+
+    .pagination .page-item.disabled .page-link {
+        background-color: #e0e0e0;
+        color: #888;
+    }
+
+    .pagination .page-item {
+        margin: 0 5px;
+    }
+</style>
+
+<div class="page-wrapper">
+    <div class="page-header d-print-none">
+        <div class="container-xl">
+            <div class="row g-2 align-items-center">
+                <div class="col">
+                    <div class="page-pretitle">
+                        Reservation Management
+                    </div>
+                    <h2 class="page-title">
+                        Confirmed Reservations
+                    </h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-body container">
+        {% for message in messages %}
+            <div class="alert 
+                {% if message.tags == 'success' %}alert-success
+                {% elif message.tags == 'error' %}alert-danger
+                {% elif message.tags == 'warning' %}alert-warning
+                {% endif %}
+                alert-dismissible fade show" role="alert">
+                {{ message|linebreaksbr }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover">
+                        <thead class="thead-dark">
+                            <tr>     
+                                <th>Created At</th>
+                                <th>Confirmed At</th>
+                                <th>Guest Name</th>
+                                <th>Room</th>
+                                <th>Arrival</th>
+                                <th>Departure</th>
+                                <th>Special Request</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for reservation in confirmed_reservations %}
+                                <tr>
+                                    <td>
+                                        {{ reservation.created_at.date }}<br>
+                                        {{ reservation.created_at.time }}
+                                    </td>
+                                    <td>
+                                        {{ reservation.confirmed_at.date }}<br>
+                                        {{ reservation.confirmed_at.time }}
+                                    </td>
+                                    
+                                    <td>{{ reservation.first_name }} {{ reservation.last_name }}</td>
+                                    <td>{{ reservation.room }}</td>
+                                    <td>
+                                        {{ reservation.arrival_date }}<br>
+                                        {{ reservation.arrival_time }}
+                                    </td>
+                                    <td>
+                                        {{ reservation.departure_date }}<br>
+                                        {{ reservation.departure_time }}
+                                    </td>
+                            
+                                    <td>{{ reservation.special_request|default:"None" }}</td>
+                                    <td>
+                                        <div class="d-flex gap-1">
+                                             <!-- Complete Button -->
+                                             <button class="btn btn-sm btn-success complete-btn"
+                                             data-bs-toggle="modal"
+                                             data-bs-target="#confirmCompleteModal"
+                                             data-reservation-id="{{ reservation.id }}"
+                                             data-reservation-user="{{ reservation.first_name }} {{ reservation.last_name }}">
+                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-calendar-check" viewBox="0 0 16 16">
+                                                 <path d="M10.854 7.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 9.793l2.646-2.647a.5.5 0 0 1 .708 0"/>
+                                                 <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4z"/>
+                                               </svg>
+                                             </button>
+                                            <button class="btn btn-sm btn-danger cancel-btn" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#cancelReservationModal"
+                                            data-reservation-id="{{ reservation.id }}"
+                                            data-reservation-user="{{ reservation.first_name }} {{ reservation.last_name }}"
+                                         >
+                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
+                                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                                            <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+                                          </svg>
+                                            </button>
+                                           
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="10" class="text-center">No confirmed reservations found.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Pagination (if applicable) -->
+                {% if confirmed_reservations.paginator.num_pages > 1 %}
+                    <nav>
+                        <ul class="pagination justify-content-center">
+                            {% if confirmed_reservations.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=1">First</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ confirmed_reservations.previous_page_number }}">Previous</a>
+                                </li>
+                            {% endif %}
+                            
+                            <li class="page-item disabled">
+                                <span class="page-link">Page {{ confirmed_reservations.number }} of {{ confirmed_reservations.paginator.num_pages }}</span>
+                            </li>
+                            
+                            {% if confirmed_reservations.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ confirmed_reservations.next_page_number }}">Next</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ confirmed_reservations.paginator.num_pages }}">Last</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Cancel Reservation Modal -->
+<div class="modal modal-blur fade" id="cancelReservationModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <button type="button" class="btn-close position-absolute top-0 end-0 m-2" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-status bg-danger"></div>
+            <div class="modal-body text-center py-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-danger icon-lg" width="32" height="32" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                    <path d="M10.24 3.957l-8.422 14.06a1.989 1.989 0 0 0 1.7 2.983h16.845a1.989 1.989 0 0 0 1.7 -2.983l-8.423 -14.06a1.989 1.989 0 0 0 -3.4 0z"/>
+                    <path d="M12 9v4"/>
+                    <path d="M12 17h.01"/>
+                </svg>
+                <h3>Are you sure?</h3>
+                <div class="reservation-details mb-3">
+                    <p>Do you really want to cancel reservation for <strong><span id="modal-guest-name"></span></strong>?</p>
+                
+                    <p class="text-danger mt-2">This action cannot be undone.</p>
+                </div>
+                <form id="cancelReservationForm" method="POST" action="{% url 'cancel_reservation' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="reservation_id" id="cancel-reservation-id">
+                    <input type="hidden" name="cancelled_by" value="admin">
+                    <div class="mb-3">
+                        <label for="reason_for_cancelling" class="form-label text-muted">Reason for Cancellation</label>
+                        <textarea class="form-control" name="reason_for_cancelling" id="reason_for_cancelling" rows="3" style="height: 100px; resize: none;" required></textarea>
+                        <div id="reason-error" class="text-danger small mt-1" style="display: none;">Please provide a reason for cancellation.</div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <div class="w-100">
+                    <div class="row">
+                        <div class="col">
+                            <button class="btn w-100" data-bs-dismiss="modal">Close</button>
+                        </div>
+                        <div class="col">
+                            <button type="submit" form="cancelReservationForm" class="btn btn-danger w-100" id="confirmCancelBtn">Cancel Reservation</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Confirm Completion Modal -->
+<div class="modal modal-blur fade" id="confirmCompleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-status bg-success"></div>
+            <div class="modal-body text-center py-4">
+                <h3>Confirm Completion</h3>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-green icon-lg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /><path d="M9 12l2 2l4 -4" /></svg>
+                <p class="text-muted">Are you sure you want to mark this reservation as <strong class="text-success">completed</strong>?</p>
+                <p class="small">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <div class="w-100">
+                    <div class="row">
+                        <div class="col">
+                            <button type="button" class="btn w-100" data-bs-dismiss="modal">
+                                Cancel
+                            </button>
+                        </div>
+                        <div class="col">
+                            <form id="completeReservationForm" method="post" action="{% url 'complete_reservation' %}">
+
+                                {% csrf_token %}
+                                <input type="hidden" name="reservation_id" id="reservationIdToComplete">
+                                <button type="submit" class="btn btn-success w-100">
+                                    Yes, Complete
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    const completeButtons = document.querySelectorAll('.complete-btn');
+    const reservationInput = document.getElementById('reservationIdToComplete');
+
+    completeButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const reservationId = button.getAttribute('data-reservation-id');
+            reservationInput.value = reservationId;
+        });
+    });
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle cancel button clicks
+    document.querySelectorAll('.cancel-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const reservationId = this.getAttribute('data-reservation-id');
+            const guestName = this.getAttribute('data-reservation-user');
+       
+            
+            document.getElementById('modal-guest-name').textContent = guestName;
+      
+            document.getElementById('cancel-reservation-id').value = reservationId;
+        });
+    });
+
+    // Form validation
+    const cancelForm = document.getElementById('cancelReservationForm');
+    const reasonField = document.getElementById('reason_for_cancelling');
+    const reasonError = document.getElementById('reason-error');
+    
+    if (cancelForm) {
+        cancelForm.addEventListener('submit', function(e) {
+            if (!reasonField.value.trim()) {
+                e.preventDefault();
+                reasonError.style.display = 'block';
+                reasonField.focus();
+            }
+        });
+        
+        // Hide error when typing
+        reasonField.addEventListener('input', function() {
+            if (this.value.trim()) {
+                reasonError.style.display = 'none';
+            }
+        });
+    }
+});
+</script>
+{% endblock content %}

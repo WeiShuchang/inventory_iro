@@ -13,6 +13,8 @@
     <link href="{% static 'administrator/ui/dist/css/tabler-payments.min.css' %}" rel="stylesheet"/>
     <link href="{% static 'administrator/ui/dist/css/tabler-vendors.min.css' %}" rel="stylesheet"/>
     <link href="{% static 'administrator/ui/dist/css/demo.min.css' %}" rel="stylesheet"/>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
     <style>
       @import url('https://rsms.me/inter/inter.css');
       :root {
@@ -27,89 +29,95 @@
     <script src="{% static 'dist/js/demo-theme.min.js' %}"></script>
     <div class="page">
       <!-- Navbar -->
+      <header class="navbar navbar-expand-md navbar-light bg-light">
+        <div class="container-xl">
+            <!-- Logo -->
+            <a class="navbar-brand" href="{% url 'administrator_dashboard' %}">
+                <img src="{% static 'iro_logo.png' %}" alt="Logo" height="40">
+            </a>
       
-<header class="navbar navbar-expand-md navbar-light bg-light">
-  <div class="container-xl">
-      <!-- Logo -->
-      <a class="navbar-brand" href="{% url 'administrator_dashboard' %}">
-          <img src="{% static 'iro_logo.png' %}" alt="Logo" height="40">
-      </a>
-
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-      </button>
-
-      <div class="collapse navbar-collapse" id="navbar-menu">
-          <ul class="navbar-nav me-auto mb-md-0">
-              <li class="nav-item">
-                  <a class="nav-link" href="{% url 'administrator_dashboard' %}">Home</a>
-              </li>
-              <li class="nav-item dropdown">
-                  <a class="nav-link dropdown-toggle" href="#" id="inventoryDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                      Inventory
-                  </a>
-                  <ul class="dropdown-menu" aria-labelledby="inventoryDropdown">
-                      <li><a class="dropdown-item" href="{% url 'item_list' %}">All Items</a></li>
-                      <li><a class="dropdown-item" href="{% url 'item_type_list' %}">Types of Items</a></li>
-                      <li><a class="dropdown-item" href="{% url 'archived_items' %}">Archived Items</a></li>
-                  </ul>
-              </li>
-              <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="databaseDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    Bookings
-                </a>
-                <ul class="dropdown-menu" aria-labelledby="databaseDropdown">
-                    <li><a class="dropdown-item" href="{% url 'pending_reservations' %}">Pending </a></li>
-                    <li><a class="dropdown-item" href="">Confirmed</a></li>
-                    <li><a class="dropdown-item" href="">Cancelled</a></li>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+      
+            <div class="collapse navbar-collapse" id="navbar-menu">
+                <ul class="navbar-nav me-auto mb-md-0">
+                    <li class="nav-item {% if request.resolver_match.url_name == 'administrator_dashboard' %}active{% endif %}" href="{% url 'administrator_dashboard' %}">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'administrator_dashboard' %}active{% endif %}" href="{% url 'administrator_dashboard' %}">Home</a>
+                    </li>
+      
+                    <!-- Inventory Dropdown -->
+                    <li class="nav-item dropdown {% if 'item_list' in request.resolver_match.url_name or 'item_type_list' in request.resolver_match.url_name or 'archived_items' in request.resolver_match.url_name %}active{% endif %}">
+                        <a class="nav-link dropdown-toggle {% if 'item_list' in request.resolver_match.url_name or 'item_type_list' in request.resolver_match.url_name or 'archived_items' in request.resolver_match.url_name %}active{% endif %}" href="#" id="inventoryDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Inventory
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="inventoryDropdown">
+                            <li><a class="dropdown-item {% if request.resolver_match.url_name == 'item_list' %}active{% endif %}" href="{% url 'item_list' %}">All Items</a></li>
+                            <li><a class="dropdown-item {% if request.resolver_match.url_name == 'item_type_list' %}active{% endif %}" href="{% url 'item_type_list' %}">Types of Items</a></li>
+                            <li><a class="dropdown-item {% if request.resolver_match.url_name == 'archived_items' %}active{% endif %}" href="{% url 'archived_items' %}">Archived Items</a></li>
+                        </ul>
+                    </li>
+      
+                    <!-- Bookings Dropdown -->
+                    <li class="nav-item dropdown {% if 'list_of_rooms' in request.resolver_match.url_name or 'pending_reservations' in request.resolver_match.url_name or 'confirmed_reservations' in request.resolver_match.url_name or 'cancelled_reservations' in request.resolver_match.url_name %}active{% endif %}">
+                        <a class="nav-link dropdown-toggle {% if 'list_of_rooms' in request.resolver_match.url_name or 'pending_reservations' in request.resolver_match.url_name or 'confirmed_reservations' in request.resolver_match.url_name or 'cancelled_reservations' in request.resolver_match.url_name %}active{% endif %}" href="#" id="databaseDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Bookings
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="databaseDropdown">
+                            <li><a class="dropdown-item {% if request.resolver_match.url_name == 'list_of_rooms' %}active{% endif %}" href="{% url 'list_of_rooms' %}">Rooms</a></li>
+                            <li><a class="dropdown-item {% if request.resolver_match.url_name == 'pending_reservations' %}active{% endif %}" href="{% url 'pending_reservations' %}">Pending</a></li>
+                            <li><a class="dropdown-item {% if request.resolver_match.url_name == 'confirmed_reservations' %}active{% endif %}" href="{% url 'confirmed_reservations' %}">Confirmed</a></li>
+                            <li><a class="dropdown-item {% if request.resolver_match.url_name == 'cancelled_reservations' %}active{% endif %}" href="{% url 'cancelled_reservations' %}">Cancelled</a></li>
+                            <li><a class="dropdown-item {% if request.resolver_match.url_name == 'completed_reservations' %}active{% endif %}" href="{% url 'completed_reservations' %}">Completed</a></li>
+                        </ul>
+                    </li>
+      
+                    <li class="nav-item  {% if request.resolver_match.url_name == 'year_list' %}active{% endif %}">
+                        <a href="{% url 'year_list' %}" class="nav-link {% if request.resolver_match.url_name == 'year_list' %}active{% endif %}">Expenditures</a>
+                    </li>
                 </ul>
-              </li>
-              <li class="nav-item">
-                  <a href="{% url 'year_list' %}" class="nav-link">Expenditures</a>
-              </li>
-          </ul>
-
-          <ul class="navbar-nav ms-auto">
-            
-
-              <li class="nav-item dropdown">
-                  <a class="nav-link dropdown-toggle" href="#" id="databaseDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                      Partnerships
-                  </a>
-                  <ul class="dropdown-menu" aria-labelledby="databaseDropdown">
-                      <li><a class="dropdown-item" href="{% url 'partnership_list' %}">List of Partnerships</a></li>
-                      <li><a class="dropdown-item" href="{% url 'visitor_list' %}">List of Visitors</a></li>
-                      <li><a class="dropdown-item" href="{% url 'removed_partnerships' %}">Removed from List</a></li>
-                  </ul>
-              </li>
-
-              <li class="nav-item dropdown">
-                  <a class="nav-link dropdown-toggle" href="#" id="databaseDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                      Database
-                  </a>
-                  <ul class="dropdown-menu" aria-labelledby="databaseDropdown">
-                      <li><a class="dropdown-item" href="{% url 'restore_database' %}">Restore Database</a></li>
-                      <li><a class="dropdown-item" href="{% url 'download_db_backup' %}">Back-up Database</a></li>
-                  </ul>
-              </li>
-
-              <li class="nav-item">
-                  <a href="" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="nav-link">
-                      Logout
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-right my-1 mx-2" viewBox="0 0 16 16">
-                          <path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0z"/>
-                          <path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708z"/>
-                      </svg>
-                  </a>
-                  <form id="logout-form" action="{% url 'logout_route' %}" method="POST" style="display: none;">
-                      {% csrf_token %}
-                  </form>
-              </li>
-          </ul>
-      </div>
-  </div>
-</header>
-   
+      
+                <ul class="navbar-nav ms-auto">
+                    <!-- Partnerships Dropdown -->
+                    <li class="nav-item dropdown {% if 'partnership_list' in request.resolver_match.url_name or 'visitor_list' in request.resolver_match.url_name or 'removed_partnerships' in request.resolver_match.url_name %}active{% endif %}">
+                        <a class="nav-link dropdown-toggle {% if 'partnership_list' in request.resolver_match.url_name or 'visitor_list' in request.resolver_match.url_name or 'removed_partnerships' in request.resolver_match.url_name %}active{% endif %}" href="#" id="partnershipsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Partnerships
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="partnershipsDropdown">
+                            <li><a class="dropdown-item {% if request.resolver_match.url_name == 'partnership_list' %}active{% endif %}" href="{% url 'partnership_list' %}">List of Partnerships</a></li>
+                            <li><a class="dropdown-item {% if request.resolver_match.url_name == 'visitor_list' %}active{% endif %}" href="{% url 'visitor_list' %}">List of Visitors</a></li>
+                            <li><a class="dropdown-item {% if request.resolver_match.url_name == 'removed_partnerships' %}active{% endif %}" href="{% url 'removed_partnerships' %}">Removed from List</a></li>
+                        </ul>
+                    </li>
+      
+                    <!-- Database Dropdown -->
+                    <li class="nav-item dropdown {% if 'restore_database' in request.resolver_match.url_name or 'download_db_backup' in request.resolver_match.url_name %}active{% endif %}">
+                        <a class="nav-link dropdown-toggle {% if 'restore_database' in request.resolver_match.url_name or 'download_db_backup' in request.resolver_match.url_name %}active{% endif %}" href="#" id="databaseDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Database
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="databaseDropdown">
+                            <li><a class="dropdown-item {% if request.resolver_match.url_name == 'restore_database' %}active{% endif %}" href="{% url 'restore_database' %}">Restore Database</a></li>
+                            <li><a class="dropdown-item {% if request.resolver_match.url_name == 'download_db_backup' %}active{% endif %}" href="{% url 'download_db_backup' %}">Back-up Database</a></li>
+                        </ul>
+                    </li>
+      
+                    <!-- Logout -->
+                    <li class="nav-item">
+                        <a href="" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="nav-link">
+                            Logout
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-right my-1 mx-2" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5.5 0 0 0 0 3.5v9A1.5.5 0 0 0 1.5 14h8a1.5.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0z"/>
+                                <path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708z"/>
+                            </svg>
+                        </a>
+                        <form id="logout-form" action="{% url 'logout_route' %}" method="POST" style="display: none;">
+                            {% csrf_token %}
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </header>
 
     {% block content %}
     {% endblock content %}
