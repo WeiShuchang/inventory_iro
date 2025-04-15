@@ -64,7 +64,7 @@
                             Bookings
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="databaseDropdown">
-                            <li><a class="dropdown-item {% if request.resolver_match.url_name == 'list_of_rooms' %}active{% endif %}" href="{% url 'list_of_rooms' %}">Rooms</a></li>
+                            <li><a class="dropdown-item {% if request.resolver_match.url_name == 'list_of_rooms' %}active{% endif %}" href="{% url 'list_of_rooms' %}">Facilities</a></li>
                             <li><a class="dropdown-item {% if request.resolver_match.url_name == 'pending_reservations' %}active{% endif %}" href="{% url 'pending_reservations' %}">Pending</a></li>
                             <li><a class="dropdown-item {% if request.resolver_match.url_name == 'confirmed_reservations' %}active{% endif %}" href="{% url 'confirmed_reservations' %}">Confirmed</a></li>
                             <li><a class="dropdown-item {% if request.resolver_match.url_name == 'cancelled_reservations' %}active{% endif %}" href="{% url 'cancelled_reservations' %}">Cancelled</a></li>

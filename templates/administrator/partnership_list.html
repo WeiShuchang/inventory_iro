@@ -65,49 +65,75 @@
 
     <div class="page-body container-fluid">
         
-        <form method="get" class="mb-2 container">
-            <div class="row g-2 align-items-center">
-                <!-- Search Field -->
-                <div class="col-md-3">
-                    <input type="text" name="q" class="form-control" placeholder="Search by Partner or Country" value="{{ query }}">
-                </div>
-        
-                <!-- Continent Filter -->
-                <div class="col-md-3">
-                    <select name="continent" class="form-control">
-                        <option value="">All Continents</option>
-                        {% for key, value in CONTINENT_CHOICES %}
-                            <option value="{{ key }}" {% if request.GET.continent == key %}selected{% endif %}>{{ value }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-        
-                <!-- Status Filter -->
-                <div class="col-md-3">
-                    <select name="status" class="form-control">
-                        <option value="">All Statuses</option>
-                        <option value="Active" {% if status_filter == "Active" %}selected{% endif %}>Active</option>
-                        <option value="Pending" {% if status_filter == "Pending" %}selected{% endif %}>Pending</option>
-                        <option value="Inactive" {% if status_filter == "Inactive" %}selected{% endif %}>Inactive</option>
-                        <option value="Completed" {% if status_filter == "Completed" %}selected{% endif %}>Completed</option>
-                    </select>
-                </div>
-        
-                <!-- Search Button -->
-                <div class="col-auto">
-                    <button type="submit" class="btn btn-primary">Search</button>
-                </div>
-
-                
-        
+      <form method="get" class="mb-2 container">
+        <div class="row g-2 align-items-center">
+            <!-- Search Field -->
+            <div class="col-md-3">
+                <input type="text" name="q" class="form-control" placeholder="Search by Partner or Country" value="{{ query }}">
             </div>
-        </form>
-        
-
+    
+            <!-- Continent Filter -->
+            <div class="col-md-3">
+                <select name="continent" class="form-control">
+                    <option value="">All Continents</option>
+                    {% for key, value in CONTINENT_CHOICES %}
+                        <option value="{{ key }}" {% if continent_filter == key %}selected{% endif %}>{{ value }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+    
+            <!-- Status Filter -->
+            <div class="col-md-3">
+                <select name="status" class="form-control">
+                    <option value="">All Statuses</option>
+                    {% for key, value in STATUS_CHOICES %}
+                        <option value="{{ key }}" {% if status_filter == key %}selected{% endif %}>{{ value }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+    
+            <!-- Search Button -->
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary">Search</button>
+            </div>
+        </div>
+    </form>
+    
+   
      
         <div class="page-body">
           
             <div class="container-xl">
+              {% if request.GET.q or request.GET.continent or request.GET.status %}
+                {% if partnerships %}
+                  <div class="alert alert-info mt-3" role="alert">
+                      Showing {{ partnerships.paginator.count }} result(s) for:
+                      {% if request.GET.q %}
+                          <strong>"{{ request.GET.q }}"</strong>
+                      {% endif %}
+                      {% if request.GET.continent %}
+                          in <strong>{{ continent_filter_display }}</strong>
+                      {% endif %}
+                      {% if request.GET.status %}
+                          with status <strong>{{ status_filter_display }}</strong>
+                      {% endif %}
+                  </div>
+              {% else %}
+                  <div class="alert alert-secondary mt-3" role="alert">
+                      No results found for:
+                      {% if request.GET.q %}
+                          <strong>"{{ request.GET.q }}"</strong>
+                      {% endif %}
+                      {% if request.GET.continent %}
+                          in <strong>{{ continent_filter_display }}</strong>
+                      {% endif %}
+                      {% if request.GET.status %}
+                          with status <strong>{{ status_filter_display }}</strong>
+                      {% endif %}
+                      . Try different search criteria.
+                  </div>
+              {% endif %}
+          {% endif %}
               {% for message in messages %}
                 <div class="alert 
                     {% if message.tags == 'success' %}alert-success

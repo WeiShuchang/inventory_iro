@@ -55,7 +55,7 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarCollapse">
         <div class="navbar-nav ms-auto p-4 p-lg-0">
-            <a href="{% url 'item_types_list' %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'item_types_list' %}active{% endif %}">Inventory</a>
+      
             <a href="{% url 'partnership_list_user' %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'partnership_list_user' %}active{% endif %}">International Partnerships</a>
             <a href="{% url 'book_room' %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'book_room' %}active{% endif %}">Booking</a>
             <a href="{% url 'login_url' %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'login_url' %}active{% endif %}" target="_blank">Log-in</a>
@@ -100,7 +100,6 @@
                     </p>
                     
                     <div class="d-flex pt-2">
-                     
                         <a class="btn btn-outline-light btn-social" href="https://www.facebook.com/intlBSU" target="_blank"><i class="fab fa-facebook-f"></i></a>
                         <a class="btn btn-outline-light btn-social" href="https://www.youtube.com/@benguetstateuniversity2177" target="_blank"><i class="fab fa-youtube"></i></a>
                         <a class="btn btn-outline-light btn-social" href="https://www.instagram.com/benguetstateuniversityofficial/?hl=en" target="_blank"><i class="fab fa-instagram"></i></a>
@@ -110,23 +109,9 @@
                     <h4 class="text-white mb-3">Gallery</h4>
                     <div class="row g-2 pt-2">
                         <div class="col-4">
-                            <img class="img-fluid bg-light p-1" src="{% static 'home/img/course-1.jpg' %}" alt="">
+                            <img class="img-fluid bg-light p-1" src="{% static 'iro_logo.ico' %}" alt="">
                         </div>
-                        <div class="col-4">
-                            <img class="img-fluid bg-light p-1" src="{% static 'home/img/course-2.jpg' %}" alt="">
-                        </div>
-                        <div class="col-4">
-                            <img class="img-fluid bg-light p-1" src="{% static 'home/img/course-3.jpg' %}" alt="">
-                        </div>
-                        <div class="col-4">
-                            <img class="img-fluid bg-light p-1" src="{% static 'home/img/course-2.jpg' %}" alt="">
-                        </div>
-                        <div class="col-4">
-                            <img class="img-fluid bg-light p-1" src="{% static 'home/img/course-3.jpg' %}" alt="">
-                        </div>
-                        <div class="col-4">
-                            <img class="img-fluid bg-light p-1" src="{% static 'home/img/course-1.jpg' %}" alt="">
-                        </div>
+                       
                     </div>
                 </div>
                 
@@ -142,14 +127,7 @@
                         Designed By <a class="border-bottom" href="https://htmlcodex.com">HTML Codex</a><br><br>
                         Distributed By <a class="border-bottom" href="https://themewagon.com">ThemeWagon</a>
                     </div>
-                    <div class="col-md-6 text-center text-md-end">
-                        <div class="footer-menu">
-                            <a href="">Home</a>
-                            <a href="">Cookies</a>
-                            <a href="">Help</a>
-                            <a href="">FQAs</a>
-                        </div>
-                    </div>
+                 
                 </div>
             </div>
         </div>

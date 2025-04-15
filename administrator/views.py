@@ -32,7 +32,6 @@ from django.conf import settings
 from django.urls import reverse
 from django.utils import timezone
 from openpyxl import Workbook
-
 from datetime import datetime
 from django.http import JsonResponse
 from django.db.models import Count
@@ -42,7 +41,6 @@ import sqlite3
 import os
 import json
 import logging
-
 
 def administrator_dashboard(request):
     item_count = Item.objects.filter(is_archived=False).count()
@@ -69,7 +67,10 @@ def administrator_dashboard(request):
     # Extract labels and counts for partnership status
     status_labels = [entry["status"] for entry in status_distribution]
     status_counts = [entry["count"] for entry in status_distribution]
-    status_colors_filtered = {label: status_colors.get(label, "rgba(200, 200, 200, 0.7)") for label in status_labels}
+    status_colors_filtered = {
+        label: status_colors.get(label, "rgba(200, 200, 200, 0.7)")
+        for label in status_labels
+    }
 
     # Category distribution for items
     category_distribution = (
@@ -98,12 +99,32 @@ def administrator_dashboard(request):
 
     # Define colors for each category
     category_colors = {
-        "Property, Plant and Equipment": "rgba(33, 150, 243, 0.9)",  # Blue
-        "High Value Semi-Expendable": "rgba(255, 165, 0, 0.9)",  # Amber
-        "Low Value Semi-Expendable": "rgba(76, 175, 80, 0.9)",  # Green
+        "Property, Plant and Equipment": "rgba(33, 150, 243, 0.9)",
+        "High Value Semi-Expendable": "rgba(255, 165, 0, 0.9)",
+        "Low Value Semi-Expendable": "rgba(76, 175, 80, 0.9)",
     }
 
-    # Prepare context for rendering
+    # Reservation status counts
+    reservation_status_counts = (
+        Reservation.objects
+        .values("status")
+        .annotate(count=Count("id"))
+    )
+
+    # Turn into dictionary for easy access
+    reservation_counts = {
+        "Pending": 0,
+        "Confirmed": 0,
+        "Cancelled": 0,
+        "Completed": 0
+    }
+
+    for entry in reservation_status_counts:
+        status = entry["status"]
+        count = entry["count"]
+        if status in reservation_counts:
+            reservation_counts[status] = count
+
     context = {
         "item_count": item_count,
         "partnership_count": partnership_count,
@@ -115,6 +136,7 @@ def administrator_dashboard(request):
         "category_labels": json.dumps(list(category_counts.keys())),
         "category_counts": json.dumps(list(category_counts.values())),
         "category_colors_json": json.dumps(category_colors),
+        "reservation_counts": reservation_counts,
     }
 
     return render(request, "administrator/administrator_dashboard.html", context)
@@ -722,11 +744,12 @@ def partnership_list(request):
         'partnerships': page_obj,
         'query': query,
         'continent_filter': continent_filter,
-        'status_filter': status_filter,  # Pass the status filter to the template
+        'status_filter': status_filter,
         'CONTINENT_CHOICES': Partnership.CONTINENT_CHOICES,
-        'STATUS_CHOICES': Partnership.STATUS_CHOICES,  # Pass status choices to the template
+        'STATUS_CHOICES': Partnership.STATUS_CHOICES,
+        'continent_filter_display': dict(Partnership.CONTINENT_CHOICES).get(continent_filter, ''),
+        'status_filter_display': dict(Partnership.STATUS_CHOICES).get(status_filter, ''),
     }
-
     return render(request, 'administrator/partnership_list.html', context)
 
 def partnership_detail(request, partnership_id):

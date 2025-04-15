@@ -10,6 +10,7 @@ class Room(models.Model):
 
     def __str__(self):
         return f"{self.room_type} - {self.room_number}"
+    
 class Reservation(models.Model):
     first_name = models.CharField(max_length=255)  # Guest's first name
     last_name = models.CharField(max_length=255)  # Guest's last name

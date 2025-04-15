@@ -1,4 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.conf import settings
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from administrator.models import ItemType, Item, Partnership
@@ -85,7 +88,7 @@ def partnership_list(request):
 def book_room(request):
     form = ReservationForm()
     rooms = Room.objects.all()
-    
+
     # Get all reservations for each room
     room_reservations = {}
     for room in rooms:
@@ -93,18 +96,47 @@ def book_room(request):
             room=room,
             status__in=["Confirmed"]
         ).values_list('arrival_date', 'departure_date')
-        
+
         # Convert dates to ISO format strings for JSON serialization
         room_reservations[room.id] = [
             [arrival.isoformat(), departure.isoformat()]
             for arrival, departure in reservations
         ]
-    
+
     if request.method == "POST":
         form = ReservationForm(request.POST)
         if form.is_valid():
             try:
-                form.save()
+                reservation = form.save()
+
+                # Email details
+                subject_admin = "New Room Reservation Submitted"
+                subject_guest = "Your Room Reservation Was Received"
+                from_email = settings.DEFAULT_FROM_EMAIL
+                admin_email = settings.EMAIL_HOST_USER
+                guest_email = reservation.email
+
+                # Render email templates
+                admin_html = render_to_string("emails/reservation_notification.html", {
+                    "reservation": reservation
+                })
+                guest_html = render_to_string("emails/guest_confirmation.html", {
+                    "reservation": reservation
+                })
+
+                # Plain text fallback
+                text_content = f"Reservation by {reservation.first_name} {reservation.last_name} for room {reservation.room}"
+
+                # Send email to admin
+                admin_msg = EmailMultiAlternatives(subject_admin, text_content, from_email, [admin_email])
+                admin_msg.attach_alternative(admin_html, "text/html")
+                admin_msg.send()
+
+                # Send email to guest
+                guest_msg = EmailMultiAlternatives(subject_guest, text_content, from_email, [guest_email])
+                guest_msg.attach_alternative(guest_html, "text/html")
+                guest_msg.send()
+
                 messages.success(request, "Your room reservation was successful! Please wait for the administrator to view your reservation! Thank you!")
                 return redirect("book_room")
             except Exception as e:

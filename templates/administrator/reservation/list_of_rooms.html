@@ -17,7 +17,7 @@
                         International Relations Office
                     </div>
                     <h2 class="page-title">
-                        Rooms
+                        Facilities
                     </h2>
                 </div>
                 <div class="col-auto ms-auto d-print-none">
@@ -28,7 +28,7 @@
                                 <path d="M12 5l0 14" />
                                 <path d="M5 12l14 0" />
                             </svg>
-                            Add New Room
+                            Add New Facility
                         </a>
                     </div>
                 </div>
@@ -104,7 +104,7 @@
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="editRoomLabel">Edit Room {{ room.room_number }}</h5>
+                                <h5 class="modal-title" id="editRoomLabel">Edit Facility {{ room.room_number }}</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <form method="post" action="{% url 'edit_room' room.id %}" enctype="multipart/form-data">
@@ -114,11 +114,11 @@
                                         <!-- Left Column -->
                                         <div class="col-md-6">
                                             <div class="mb-3">
-                                                <label for="roomType" class="form-label">Room Type</label>
+                                                <label for="roomType" class="form-label">Facility</label>
                                                 <input type="text" class="form-control" name="room_type" value="{{ room.room_type }}" required>
                                             </div>
                                             <div class="mb-3">
-                                                <label for="roomNumber" class="form-label">Room Number</label>
+                                                <label for="roomNumber" class="form-label"> Number</label>
                                                 <input type="text" class="form-control" name="room_number" value="{{ room.room_number }}" required>
                                             </div>
                                             <div class="mb-3">
@@ -164,7 +164,7 @@
                     </div>
                 </div>
                 {% empty %}
-                <p>No rooms available.</p>
+                <p>No Facilities available.</p>
                 {% endfor %}
             </div>
             
@@ -176,7 +176,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modal-add-room-label">Add New Room</h5>
+                <h5 class="modal-title" id="modal-add-room-label">Add New Facility</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form method="POST" action="{% url 'add_room' %}" enctype="multipart/form-data">
@@ -185,13 +185,7 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="room_number" class="form-label">Room Number</label>
-                                <input type="text" class="form-control" id="room_number" name="room_number" required>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="room_type" class="form-label">Room Type</label>
+                                <label for="room_type" class="form-label">Facility</label>
                                 <select class="form-control" id="room_type" name="room_type" required>
                                     <option value="Single">Single</option>
                                     <option value="Double">Double</option>
@@ -200,6 +194,13 @@
                                 </select>
                             </div>
                         </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="room_number" class="form-label">Number</label>
+                                <input type="text" class="form-control" id="room_number" name="room_number" required>
+                            </div>
+                        </div>
+                      
                     </div>
                     
                     <div class="row">
@@ -211,7 +212,7 @@
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="image" class="form-label">Room Image</label>
+                                <label for="image" class="form-label">Image</label>
                                 <input type="file" class="form-control" id="image" name="image" required>
                             </div>
                         </div>
@@ -230,7 +231,7 @@
                 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Add Room</button>
+                    <button type="submit" class="btn btn-primary">Add Facility</button>
                 </div>
             </form>
         </div>

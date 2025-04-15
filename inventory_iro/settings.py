@@ -150,5 +150,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'sanchezmaronharvey@gmail.com'
-EMAIL_HOST_PASSWORD = 'dnme fcfh iyal fdge'  # Use an app password or environment variable for security
+EMAIL_HOST_USER = 'ir.office@bsu.edu.ph'
+EMAIL_HOST_PASSWORD = 'nrkg fbic jekg pzxt'  # Use an app password or environment variable for security
+
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
